@@ -1,0 +1,37 @@
+# LOCAL development only (`supabase start`). The hosted project is configured in the dashboard; see DEPLOY.md.
+# Warning: `supabase config push` overwrites remote auth settings with these values.
+project_id = "caged-dragon"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://localhost:3002/auth/callback"]
+jwt_expiry = 3600
+minimum_password_length = 10
+password_requirements = "lower_upper_letters_digits"
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+secure_password_change = true
+
+[auth.oauth_server]
+enabled = true
+authorization_url_path = "/oauth/consent"
+allow_dynamic_registration = false
+
+[auth.mfa]
+max_enrolled_factors = 10
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+[auth.mfa.web_authn]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.passkey]
+enabled = true
+[auth.webauthn]
+rp_display_name = "Caged Dragon"
+rp_id = "localhost"
+rp_origins = ["http://localhost:3000", "http://localhost:3002"]
