@@ -1,3 +1,4 @@
+import { isSameOriginRequest } from './origin-policy.js';
 import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
@@ -229,25 +230,12 @@ async function proceed(req, res, s, user, method, o) {
   return finish(req, res, user, s.refresh_token, method, { ...o, at: s.access_token });
 }
 
-// Protect browser POST endpoints against cross-site requests. Browsers normally
-// send Origin on POST; some navigation/form contexts omit it, so accept a
-// same-origin Referer only when Origin is genuinely absent. Never let Referer
-// override a present (including 'null' or mismatched) Origin header.
-const sameOrigin = (req, res, next) => {
-  const originHeader = req.get('origin');
-  let requestOrigin = null;
-  if (originHeader !== undefined) {
-    try { requestOrigin = new URL(originHeader).origin; } catch { requestOrigin = null; }
-  } else {
-    const refererHeader = req.get('referer');
-    if (refererHeader) {
-      try { requestOrigin = new URL(refererHeader).origin; } catch { requestOrigin = null; }
-    }
-  }
-  return requestOrigin === PUBLIC_ORIGIN
-    ? next()
-    : res.status(403).json({ error: 'Blocked request.' });
-};
+// Protect browser POST endpoints against cross-site requests. Origin must match
+// exactly when present; same-origin Referer is accepted only as its absence fallback.
+const sameOrigin = (req, res, next) => isSameOriginRequest(
+  { origin: req.get('origin'), referer: req.get('referer') },
+  PUBLIC_ORIGIN
+) ? next() : res.status(403).json({ error: 'Blocked request.' });
 const wrap = fn => (req, res, next) => fn(req, res).catch(next);
 const parse = (schema, body) => { const r = schema.safeParse(body); if (!r.success) { const e = new Error('Check the details and try again.'); e.status = 400; throw e; } return r.data; };
 

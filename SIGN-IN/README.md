@@ -63,9 +63,10 @@ The organisation does not need its own mailbox or custom website domain for emai
 1. Import this repository into Vercel.
 2. Set the environment variables from `.env.example` in Project Settings > Environment Variables. Do not upload the `.env` file.
 3. Set `PUBLIC_URL` to the final Vercel HTTPS deployment origin.
-4. Keep the Vercel project root set to this folder (the folder containing `package.json`, `index.js`, `server.js`, `public/`, and `vercel.json`) and deploy with Node.js 20+. The included `vercel.json` enables `cleanUrls` so `/account`, `/developer`, and `/admin` resolve to their `.html` pages.
-5. In Supabase Auth > URL Configuration, set the Site URL and allowed redirects to the deployed origin.
-6. Check `/healthz` (process liveness) and `/readyz` (database readiness).
+4. Set `RATE_LIMIT_STORE=database` for Vercel and ensure the shared rate-limit SQL/RPC in `docs/database.sql` is deployed. The default in-memory limiter is intended for local development or a single process only.
+5. Keep the Vercel project root set to this folder (the folder containing `package.json`, `index.js`, `server.js`, `public/`, and `vercel.json`) and deploy with Node.js 20+. The included `vercel.json` enables `cleanUrls` so `/account`, `/developer`, and `/admin` resolve to their `.html` pages.
+6. In Supabase Auth > URL Configuration, set the Site URL and allowed redirects to the deployed origin.
+7. Check `/healthz` (process liveness) and `/readyz` (database readiness).
 
 `index.js` exports the Express app for the Vercel Node runtime. Vercel's `VERCEL` environment is detected for proxy IP handling and the local listener/cleanup interval is not started inside the serverless function.
 

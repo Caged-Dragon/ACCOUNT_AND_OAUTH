@@ -69,7 +69,7 @@ Enable TOTP in Supabase > Authentication > Multi-Factor. Users can enrol an auth
 ## 8. Admin access and launch controls
 
 - `ALLOW_ACCOUNT_DELETION=0`: keep disabled until every connected product is prepared for shared-identity deletion.
-- `RATE_LIMIT_STORE=memory`: suitable for one instance. Use `database` for multiple instances so throttling is shared through the Supabase database.
+- `RATE_LIMIT_STORE=memory`: for local development or one Node process only. **On Vercel, set `RATE_LIMIT_STORE=database`** so per-IP and per-email throttling is shared through the Supabase database across serverless instances. Confirm the `login_rate_hit` RPC and `login_rate_limits` table from `docs/database.sql` are deployed before switching production to database mode; database mode intentionally fails closed if the shared limiter is unavailable.
 - `TRUST_PROXY`: leave blank on local hosting; set only to the exact trusted proxy hop count when you control the proxy. Vercel is detected automatically.
 
 ## Launch status matrix
