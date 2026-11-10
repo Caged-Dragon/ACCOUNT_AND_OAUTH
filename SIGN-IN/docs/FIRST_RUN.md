@@ -19,8 +19,10 @@
 ## Functional checklist
 
 - [ ] Create an email/password account and sign out / sign in again.
-- [ ] Register a product with `npm run products -- add demo "Demo Product" http://localhost:5555`.
-- [ ] Run the demo product with `npm run demo` and test the one-time handoff.
+- [ ] Enable the Supabase OAuth Server and set Authorization Path to `/oauth/consent` (see [`SETUP.md`](SETUP.md)).
+- [ ] Register the demo OAuth client with `npm run products -- add demo "Demo Product" http://localhost:5555 http://localhost:5555/auth/callback` and copy the returned public client ID.
+- [ ] Set `DEMO_LOGIN_URL=http://localhost:3000`, `DEMO_OIDC_ISSUER=https://gbeurqibcfvquacasofq.supabase.co/auth/v1`, and `DEMO_OAUTH_CLIENT_ID=<returned-client-id>` in `.env`.
+- [ ] Run the login portal with `npm run dev`, then run the demo product with `npm run demo` and test authorization-code + PKCE.
 - [ ] Visit `/account`, register a passkey on localhost, sign out, then sign in with it.
 - [ ] Enable TOTP in Supabase Auth, enrol it from `/account`, sign out and verify that the next login asks for a code.
 - [ ] Visit `/developer`, register a test OAuth app, and verify that client details are shown.
@@ -30,6 +32,8 @@
 ## Phone OTP test
 
 Phone sign-in is in the application but is hidden while `SMS_ENABLED=0`. Supabase fixed test numbers can be used without sending SMS after the Phone provider is enabled and its SMS-provider requirements are satisfied. Configure that outside this repository, use the matching fixed OTP, then set `SMS_ENABLED=1` only in the test deployment.
+
+The browser demo intentionally keeps tokens in memory and is only for learning. Use [`examples/oidc-bff`](../examples/oidc-bff/README.md) for the server-side session pattern required for production products.
 
 ## Before public launch
 

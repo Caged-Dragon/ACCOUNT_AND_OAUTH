@@ -1,4 +1,4 @@
-// English text is the key. Tamil and Hindi below; anything missing falls back to English.
+// English text is the key. Tamil is the only additional language; missing strings fall back to English.
 (() => {
   const D = {
     ta: {
@@ -47,55 +47,7 @@
       'Blocked request.': 'கோரிக்கை தடுக்கப்பட்டது.', 'Something went wrong. Try again.': 'ஏதோ தவறு நடந்தது. மீண்டும் முயலவும்.',
       'Check your inbox. Open the confirmation link to finish creating your account.': 'உங்கள் இன்பாக்ஸைப் பாருங்கள். கணக்கை உருவாக்கி முடிக்க உறுதிப்படுத்தல் இணைப்பைத் திறக்கவும்.',
       'Couldn’t set that password. Try a different one.': 'அந்தக் கடவுச்சொல்லை அமைக்க முடியவில்லை. வேறொன்றை முயலவும்.'
-    },
-    hi: {
-      'User': 'उपयोगकर्ता', 'Developer': 'डेवलपर', 'Sign in': 'साइन इन करें', 'Developer sign in': 'डेवलपर साइन इन',
-      'Use Caged Dragon products and unlock their benefits.': 'Caged Dragon के प्रोडक्ट इस्तेमाल करें और उनके फ़ायदे पाएँ।',
-      'Publish your products and grow with Caged Dragon.': 'अपने प्रोडक्ट प्रकाशित करें और Caged Dragon के साथ आगे बढ़ें।',
-      'Continue with Caged-Dragon': 'Caged-Dragon के साथ जारी रखें', 'Continue as ': 'इस रूप में जारी रखें: ',
-      'or sign in with': 'या इससे साइन इन करें', 'Email': 'ईमेल', 'Mobile number': 'मोबाइल नंबर',
-      'Password': 'पासवर्ड', 'Show': 'दिखाएँ', 'Hide': 'छिपाएँ', 'Forgot password?': 'पासवर्ड भूल गए?',
-      'New to Caged Dragon?': 'Caged Dragon पर नए हैं?', 'New developer?': 'नए डेवलपर हैं?', 'Already have an account?': 'पहले से खाता है?',
-      'Create an account': 'खाता बनाएँ', 'Create a developer account': 'डेवलपर खाता बनाएँ',
-      'Create account': 'खाता बनाएँ', 'Create developer account': 'डेवलपर खाता बनाएँ',
-      'Send code': 'कोड भेजें', '6-digit code': '6 अंकों का कोड', 'Verify and sign in': 'सत्यापित करें और साइन इन करें',
-      'Resend code': 'कोड दोबारा भेजें', 'Resend code in ': 'दोबारा भेजें: ', 'Use a different number': 'दूसरा नंबर इस्तेमाल करें',
-      'This account isn’t a developer account yet.': 'यह अभी डेवलपर खाता नहीं है।',
-      'Add a developer profile to publish and grow your products.': 'अपने प्रोडक्ट प्रकाशित करने के लिए डेवलपर प्रोफ़ाइल जोड़ें।',
-      'Create developer profile': 'डेवलपर प्रोफ़ाइल बनाएँ', 'New password': 'नया पासवर्ड', 'Set new password': 'नया पासवर्ड सेट करें',
-      'Set a new password': 'नया पासवर्ड सेट करें', 'Choose a password you haven’t used elsewhere.': 'ऐसा पासवर्ड चुनें जो आपने कहीं और इस्तेमाल न किया हो।',
-      'Two-step verification': 'दो-चरणीय सत्यापन', 'Enter the 6-digit code from your authenticator app.': 'अपने ऑथेंटिकेटर ऐप का 6 अंकों का कोड दर्ज करें।',
-      'Verify': 'सत्यापित करें', 'Manage account': 'खाता प्रबंधित करें', 'Developer dashboard': 'डेवलपर डैशबोर्ड', 'Use a different account': 'दूसरा खाता इस्तेमाल करें',
-      'By continuing you agree to our': 'जारी रखकर आप हमारी', 'Terms': 'शर्तों', 'and': 'और', 'Privacy Policy': 'गोपनीयता नीति', '.': ' से सहमत होते हैं।',
-      'Signed in. ': 'साइन इन हो गया। ', 'Taking you back to {name}…': '{name} पर वापस ले जा रहे हैं…', 'One moment…': 'एक पल…',
-      'You’re signed in to Caged Dragon. Open one of our products and choose Continue with Caged-Dragon.': 'आप Caged Dragon में साइन इन हैं। हमारा कोई प्रोडक्ट खोलें और “Caged-Dragon के साथ जारी रखें” चुनें।',
-      'Sign in once below. After that, this button continues instantly.': 'नीचे एक बार साइन इन करें। उसके बाद यह बटन तुरंत जारी रखेगा।',
-      'Enter a valid email address.': 'सही ईमेल पता दर्ज करें।', 'Password needs at least 8 characters.': 'पासवर्ड में कम से कम 8 अक्षर होने चाहिए।',
-      'Enter your number with country code, like +91 98765 43210.': 'देश कोड के साथ अपना नंबर दर्ज करें, जैसे +91 98765 43210।',
-      'We sent a 6-digit code to {phone}.': 'हमने {phone} पर 6 अंकों का कोड भेजा है।', 'Enter the 6-digit code.': '6 अंकों का कोड दर्ज करें।',
-      'New code sent.': 'नया कोड भेज दिया गया।', 'Enter your email above first.': 'पहले ऊपर अपना ईमेल दर्ज करें।',
-      'If that email has an account, we’ve sent a reset link. Check your inbox.': 'अगर उस ईमेल का खाता है, तो हमने रीसेट लिंक भेज दिया है। अपना इनबॉक्स देखें।',
-      'Password updated. Signing you in…': 'पासवर्ड अपडेट हो गया। साइन इन हो रहा है…', 'Complete the check first.': 'पहले जाँच पूरी करें।',
-      'Can’t reach the sign-in service. Try again in a moment.': 'साइन-इन सेवा तक नहीं पहुँच पा रहे। थोड़ी देर बाद फिर कोशिश करें।',
-      'Signing in to {name}. You’ll go back there when you’re done.': '{name} में साइन इन कर रहे हैं। पूरा होने पर आप वहीं लौट जाएँगे।',
-      'This product isn’t registered with Caged Dragon, so we can’t send you back to it after sign-in.': 'यह प्रोडक्ट Caged Dragon में रजिस्टर नहीं है, इसलिए साइन इन के बाद हम आपको वहाँ वापस नहीं भेज सकते।',
-      'Those details didn’t work. Check them and try again.': 'ये जानकारी काम नहीं आई। जाँचकर फिर कोशिश करें।',
-      'Too many tries. Wait a minute and try again.': 'बहुत ज़्यादा कोशिशें। एक मिनट रुककर फिर कोशिश करें।',
-      'Too many tries. Wait a few minutes and try again.': 'बहुत ज़्यादा कोशिशें। कुछ मिनट रुककर फिर कोशिश करें।',
-      'Confirm your email first, then sign in.': 'पहले अपना ईमेल पुष्टि करें, फिर साइन इन करें।',
-      'Couldn’t send a code. Check the number and try again.': 'कोड नहीं भेज सके। नंबर जाँचकर फिर कोशिश करें।',
-      'That code didn’t work. Check it or request a new one.': 'वह कोड काम नहीं आया। जाँचें या नया कोड मँगवाएँ।',
-      'That code didn’t work. Check it and try again.': 'वह कोड काम नहीं आया। जाँचकर फिर कोशिश करें।',
-      'That link has expired. Sign in again.': 'वह लिंक एक्सपायर हो गया। फिर से साइन इन करें।',
-      'That link has expired. Ask for a new one.': 'वह लिंक एक्सपायर हो गया। नया लिंक मँगवाएँ।',
-      'That step expired. Sign in again.': 'वह चरण एक्सपायर हो गया। फिर से साइन इन करें।',
-      'This product isn’t registered with Caged Dragon.': 'यह प्रोडक्ट Caged Dragon में रजिस्टर नहीं है।',
-      'Sign in first.': 'पहले साइन इन करें।', 'Check the details and try again.': 'जानकारी जाँचकर फिर कोशिश करें।',
-      'Blocked request.': 'अनुरोध रोका गया।', 'Something went wrong. Try again.': 'कुछ गड़बड़ हो गई। फिर कोशिश करें।',
-      'Check your inbox. Open the confirmation link to finish creating your account.': 'अपना इनबॉक्स देखें। खाता बनाना पूरा करने के लिए पुष्टि लिंक खोलें।',
-      'Couldn’t set that password. Try a different one.': 'वह पासवर्ड सेट नहीं हो सका। कोई दूसरा आज़माएँ।'
-    }
-  };
+    }  };
   let lang = 'en';
   const t = (s, v) => Object.entries(v || {}).reduce((o, [k, x]) => o.replace('{' + k + '}', x), (D[lang] && D[lang][s]) || s);
   const pick = () => {
@@ -113,8 +65,9 @@
     window.dispatchEvent(new Event('langchange'));
   }
   window.T = {
-    add(extra) { for (const l in extra) Object.assign(D[l] || (D[l] = {}), extra[l]); },
-    t, init() { lang = pick(); document.querySelectorAll('.lang button').forEach(b => b.onclick = () => this.set(b.dataset.lang)); apply(); },
-    set(l) { lang = D[l] ? l : 'en'; try { localStorage.setItem('cd_lang', lang); } catch {} apply(); }
+    get lang() { return lang; },
+    add(extra) { if (extra && extra.ta) Object.assign(D.ta, extra.ta); },
+    t, init() { lang = pick() === 'ta' ? 'ta' : 'en'; document.querySelectorAll('.lang button').forEach(b => b.onclick = () => this.set(b.dataset.lang)); apply(); },
+    set(l) { lang = l === 'ta' ? 'ta' : 'en'; try { localStorage.setItem('cd_lang', lang); } catch {} apply(); }
   };
 })();

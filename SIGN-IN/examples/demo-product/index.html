@@ -1,30 +1,54 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Demo Product</title>
-<style>body{font:16px system-ui,sans-serif;max-width:720px;margin:40px auto;padding:0 16px;color:#141414}button{font:inherit;padding:10px 16px;margin:4px 6px 4px 0;border:0;border-radius:8px;background:#E3B010;font-weight:600;cursor:pointer}button.alt{background:#141414;color:#F2C230}pre{background:#f4efdc;padding:14px;border-radius:10px;overflow:auto;white-space:pre-wrap;word-break:break-word}</style>
-</head><body>
-<h1>Demo Product</h1>
-<p>A pretend product that uses Caged Dragon Sign-In. Try each button.</p>
-<p>
-  <button id="user">Sign in as a user</button>
-  <button id="dev" class="alt">Sign in as a developer</button>
-  <button id="mfa">Sign in (require two-step)</button>
-  <button id="silent">Silent sign-in (no tap if already signed in)</button>
-  <button id="out" class="alt">Sign out everywhere</button>
-</p>
-<h2>What this product received</h2>
-<pre id="result">Nothing yet. Press a button.</pre>
-<script src="__LOGIN_URL__/sdk.js"></script>
-<script>
-  const show = o => document.getElementById('result').textContent = typeof o === 'string' ? o : JSON.stringify(o, null, 2);
-  const decode = t => JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-  document.getElementById('user').onclick = () => CagedDragon.signIn({ role: 'user' });
-  document.getElementById('dev').onclick = () => CagedDragon.signIn({ role: 'developer' });
-  document.getElementById('mfa').onclick = () => CagedDragon.signIn({ role: 'user', requireMfa: true });
-  document.getElementById('silent').onclick = () => CagedDragon.signIn({ silent: true });
-  document.getElementById('out').onclick = () => CagedDragon.signOut(null);
-  CagedDragon.complete().then(s => {
-    if (!s) return;
-    // A real product would send s.id_token to ITS server and verify it (docs/verify-id-token.mjs).
-    show({ role: s.role, roles: s.roles, mfa_verified: s.mfa_verified, mfa_enrolled: s.mfa_enrolled, id_token_claims: decode(s.id_token), has_session_tokens: !!(s.access_token && s.refresh_token) });
-  }).catch(e => show('Error: ' + e.message));
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Caged Dragon OAuth Demo Product</title>
+  <style>
+    :root{color-scheme:light dark;font:16px system-ui,sans-serif}body{max-width:46rem;margin:3rem auto;padding:0 1rem;line-height:1.55}button{font:inherit;font-weight:650;padding:.75rem 1.1rem;border:0;border-radius:.7rem;background:#e3b010;color:#171717;cursor:pointer}button:disabled{opacity:.55;cursor:wait}pre{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:1rem;border-radius:.75rem;background:color-mix(in srgb,currentColor 8%,transparent)}.fine{opacity:.72;font-size:.92rem}#message{min-height:1.5rem}
+  </style>
+</head>
+<body>
+  <h1>OAuth demo product</h1>
+  <p>This sample product uses Caged Dragon OpenID Connect with authorization code + PKCE. It is a browser-only learning demo; use the server-side BFF example for production websites.</p>
+  <p><button id="signIn" type="button">Sign in with Caged Dragon</button> <button id="refresh" type="button" hidden>Refresh session</button> <button id="signOut" type="button" hidden>Sign out of this product</button></p>
+  <p id="message" role="status" aria-live="polite"></p>
+  <h2>Account returned by Caged Dragon</h2>
+  <pre id="result">You are not signed in.</pre>
+  <script src="__LOGIN_URL__/sdk.js"
+    data-auth-url="__OIDC_ISSUER__"
+    data-client-id="__CLIENT_ID__"
+    data-redirect-uri="http://localhost:5555/auth/callback"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const show = session => {
+      $('result').textContent = session ? JSON.stringify({
+        id: session.user.id,
+        email: session.user.email || null,
+        email_verified: session.user.email_verified === true,
+        name: session.user.user_metadata?.full_name || null,
+        expires_at: new Date(session.expiresAt).toISOString()
+      }, null, 2) : 'You are not signed in.';
+      $('refresh').hidden = !session;
+      $('signOut').hidden = !session;
+    };
+    const message = text => { $('message').textContent = text || ''; };
+    $('signIn').onclick = async () => {
+      $('signIn').disabled = true;
+      try { await CagedDragon.signIn(); }
+      catch (e) { message(e.message); $('signIn').disabled = false; }
+    };
+    $('refresh').onclick = async () => {
+      try { show(await CagedDragon.refreshSession()); message('Session refreshed.'); }
+      catch (e) { show(null); message(e.message); }
+    };
+    $('signOut').onclick = async () => {
+      await CagedDragon.signOut(); show(null); message('Signed out of this product. The central Caged Dragon session remains active.');
+    };
+    CagedDragon.complete().then(session => {
+      if (session) { show(CagedDragon.getSession()); message('Signed in successfully.'); }
+      else show(CagedDragon.getSession());
+    }).catch(e => { show(null); message(e.message); });
+  </script>
+</body>
+</html>

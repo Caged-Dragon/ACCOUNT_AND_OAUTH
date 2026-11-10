@@ -56,7 +56,7 @@ export function mountExtra(app, d) {
     if ((count ?? 0) >= 10) return res.status(400).json({ error: 'You can register up to 10 apps.' });
     const { data, error } = await admin.auth.admin.oauth.createClient({
       client_name: b.name, client_uri: b.website || undefined, redirect_uris: b.redirect_uris,
-      scope: 'openid email profile', token_endpoint_auth_method: b.kind === 'public' ? 'none' : 'client_secret_basic'
+      scope: 'openid email profile', grant_types: ['authorization_code', 'refresh_token'], response_types: ['code'], token_endpoint_auth_method: b.kind === 'public' ? 'none' : 'client_secret_basic'
     });
     if (error || !data) { console.error('create oauth client:', error?.message); return res.status(400).json({ error: 'Couldn’t create the app. Check the details and try again.' }); }
     const { error: e2 } = await admin.from('login_developer_apps').insert({ client_id: data.client_id, user_id: req.cur.user.id, name: b.name });
@@ -92,6 +92,24 @@ export function mountExtra(app, d) {
       rolesOf(u.id)
     ]);
     if (factorError || eventError || grantError) throw factorError || eventError || grantError;
+    // OAuth Server may be disabled during initial setup. Keep the account page
+    // usable until it is enabled, but expose grant management automatically once live.
+    let oauthAvailable = false, oauthGrants = [];
+    if (typeof c.auth.oauth?.listGrants === 'function') {
+      const oauthResult = await c.auth.oauth.listGrants();
+      if (!oauthResult.error) {
+        oauthAvailable = true;
+        oauthGrants = (oauthResult.data || []).map(g => ({
+          clientId: g.client?.id,
+          name: g.client?.name || 'Product',
+          uri: validRedirect(g.client?.uri || '') ? g.client.uri : null,
+          scopes: Array.isArray(g.scopes) ? g.scopes : [],
+          grantedAt: g.granted_at
+        })).filter(g => typeof g.clientId === 'string' && g.clientId.length > 0);
+      } else if (oauthResult.error.code !== 'feature_disabled' && oauthResult.error.status !== 404 && oauthResult.error.statusCode !== 404) {
+        throw oauthResult.error;
+      }
+    }
     const ids = [...new Set([...(ev ?? []), ...(gr ?? [])].map(r => r.client_app_id).filter(Boolean))];
     const { data: apps, error: appsError } = ids.length ? await admin.from('login_client_apps').select('id,name').in('id', ids) : { data: [], error: null };
     if (appsError) throw appsError;
@@ -100,8 +118,33 @@ export function mountExtra(app, d) {
       identifier: ident(u), canChangePassword: !!u.email, canChangeEmail: !!u.email && EMAIL_ENABLED, canDelete: ALLOW_DELETE && !!u.email,
       isAdmin: !!u.email && ADMIN_EMAILS.has(u.email.toLowerCase()), roles: [...roles], mfa: !!f?.totp?.length,
       events: (ev ?? []).map(e => ({ method: e.method, role: e.role, at: e.created_at, product: nm[e.client_app_id] ?? null })),
-      products: (gr ?? []).map(g => ({ name: nm[g.client_app_id] ?? 'Product', at: g.last_used_at }))
+      products: (gr ?? []).map(g => ({ name: nm[g.client_app_id] ?? 'Product', at: g.last_used_at })),
+      oauthAvailable,
+      oauthGrants
     });
+  }));
+
+  app.post('/api/account/oauth-grants/revoke', sameOrigin, strict, guard(false), wrap(async (req, res) => {
+    const b = parse(z.object({ client_id: z.string().min(1).max(200) }), req.body);
+    const c = await userClient(req.cur);
+    if (typeof c.auth.oauth?.revokeGrant !== 'function') return res.status(503).json({ error: 'Connected-app management is unavailable right now.' });
+    const { error } = await c.auth.oauth.revokeGrant({ clientId: b.client_id });
+    if (error) {
+      if (error.code === 'feature_disabled' || error.status === 404 || error.statusCode === 404)
+        return res.status(503).json({ error: 'Connected-app management is not enabled yet.' });
+      throw error;
+    }
+    // Keep the portal's own per-product usage registry in sync with the Auth
+    // server's authoritative OAuth grant revocation.
+    const { data: app, error: appError } = await admin.from('login_client_apps')
+      .select('id').eq('oauth_client_id', b.client_id).maybeSingle();
+    if (appError) throw appError;
+    if (app) {
+      const { error: cleanupError } = await admin.from('login_app_grants')
+        .delete().eq('user_id', req.cur.user.id).eq('client_app_id', app.id);
+      if (cleanupError) throw cleanupError;
+    }
+    res.json({ ok: true });
   }));
 
   app.post('/api/account/password', sameOrigin, strict, guard(false), wrap(async (req, res) => {
@@ -217,7 +260,7 @@ export function mountExtra(app, d) {
     const [accounts, developers, passkeys, devApps, last24] = await Promise.all([
       count(head('login_accounts')), count(head('login_account_roles').eq('role', 'developer')), count(head('login_passkeys')),
       count(head('login_developer_apps')), count(head('login_events').gte('created_at', since))]);
-    const { data: products, error: productsError } = await admin.from('login_client_apps').select('id,slug,name,allowed_origin,is_active,created_at').order('created_at');
+    const { data: products, error: productsError } = await admin.from('login_client_apps').select('id,slug,name,allowed_origin,is_active,oauth_client_id,redirect_uris,created_at').order('created_at');
     if (productsError) throw productsError;
     const slug = Object.fromEntries((products ?? []).map(p => [p.id, p.slug]));
     const { data: ev, error: eventError } = await admin.from('login_events').select('method,role,created_at,client_app_id').order('created_at', { ascending: false }).limit(25);
@@ -237,23 +280,67 @@ export function mountExtra(app, d) {
     });
   }));
 
-  app.post('/api/admin/products', sameOrigin, adminGuard, wrap(async (req, res) => {
-    const b = parse(z.object({ slug: z.string().regex(/^[a-z0-9][a-z0-9-]{1,40}$/), name: z.string().trim().min(1).max(80), origin: z.string().max(300) }), req.body);
-    let o; try { o = new URL(b.origin); } catch { return res.status(400).json({ error: 'Origin must be a web address like https://app.example.com' }); }
-    if (o.username || o.password || o.search || o.hash || (o.pathname !== '/' && o.pathname !== '') || !['http:', 'https:'].includes(o.protocol) || (o.protocol === 'http:' && !/^(localhost|127\.0\.0\.1)$/.test(o.hostname))) return res.status(400).json({ error: 'Use an origin only: https (http only for localhost), without credentials or a path.' });
-    const { error } = await admin.from('login_client_apps').upsert({ slug: b.slug, name: b.name, allowed_origin: o.origin.toLowerCase(), is_active: true }, { onConflict: 'slug' });
-    if (error) return res.status(400).json({ error: 'That address is already used by another product.' });
-    res.json({ ok: true });
+  app.post('/api/admin/products', sameOrigin, strict, adminGuard, wrap(async (req, res) => {
+    const b = parse(z.object({
+      slug: z.string().regex(/^[a-z0-9][a-z0-9-]{1,40}$/),
+      name: z.string().trim().min(2).max(80),
+      origin: z.string().max(300),
+      redirect_uri: z.string().max(2048)
+    }), req.body);
+    let origin, callback;
+    try { origin = new URL(b.origin); callback = new URL(b.redirect_uri); }
+    catch { return res.status(400).json({ error: 'Enter a valid product origin and callback address.' }); }
+    const safeWebUrl = u => !u.username && !u.password && !u.hash &&
+      (u.protocol === 'https:' || (u.protocol === 'http:' && /^(localhost|127\.0\.0\.1)$/.test(u.hostname)));
+    if (!safeWebUrl(origin) || origin.search || (origin.pathname !== '/' && origin.pathname !== ''))
+      return res.status(400).json({ error: 'Product origin must be an HTTPS origin only (HTTP is allowed for localhost development).' });
+    if (!safeWebUrl(callback) || callback.search || callback.hash || callback.origin !== origin.origin)
+      return res.status(400).json({ error: 'The exact callback must use the same HTTPS origin and must not include a query or fragment.' });
+
+    const { data: existing, error: lookupError } = await admin.from('login_client_apps')
+      .select('oauth_client_id').eq('slug', b.slug).maybeSingle();
+    if (lookupError) throw lookupError;
+    if (existing?.oauth_client_id) return res.status(409).json({ error: 'That product already has an OAuth client. Remove it first before registering a replacement.' });
+
+    const { data: client, error: oauthError } = await admin.auth.admin.oauth.createClient({
+      client_name: b.name,
+      client_uri: origin.origin,
+      redirect_uris: [callback.href],
+      scope: 'openid email profile',
+      grant_types: ['authorization_code', 'refresh_token'],
+      response_types: ['code'],
+      token_endpoint_auth_method: 'none'
+    });
+    if (oauthError || !client?.client_id) {
+      console.error('admin product OAuth registration failed:', oauthError?.code || 'unknown');
+      return res.status(503).json({ error: 'OAuth client registration is unavailable. Confirm that the Supabase OAuth Server is enabled, then try again.' });
+    }
+    const { error } = await admin.from('login_client_apps').upsert({
+      slug: b.slug,
+      name: b.name,
+      allowed_origin: origin.origin.toLowerCase(),
+      is_active: true,
+      oauth_client_id: client.client_id,
+      redirect_uris: [callback.href],
+      client_type: 'public'
+    }, { onConflict: 'slug' });
+    if (error) {
+      await admin.auth.admin.oauth.deleteClient(client.client_id);
+      return res.status(400).json({ error: 'The product could not be saved. Check its ID and address.' });
+    }
+    res.json({ ok: true, client_id: client.client_id });
   }));
-  app.post('/api/admin/products/toggle', sameOrigin, adminGuard, wrap(async (req, res) => {
-    const b = parse(z.object({ slug: z.string().max(60), active: z.boolean() }), req.body);
-    const { error } = await admin.from('login_client_apps').update({ is_active: b.active }).eq('slug', b.slug);
-    if (error) throw error;
-    res.json({ ok: true });
-  }));
-  app.post('/api/admin/products/delete', sameOrigin, adminGuard, wrap(async (req, res) => {
+  app.post('/api/admin/products/delete', sameOrigin, strict, adminGuard, wrap(async (req, res) => {
     const b = parse(z.object({ slug: z.string().max(60) }), req.body);
-    const { error } = await admin.from('login_client_apps').delete().eq('slug', b.slug);
+    const { data: product, error: lookupError } = await admin.from('login_client_apps')
+      .select('id,oauth_client_id').eq('slug', b.slug).maybeSingle();
+    if (lookupError) throw lookupError;
+    if (!product) return res.status(404).json({ error: 'Product not found.' });
+    if (product.oauth_client_id) {
+      const { error: oauthError } = await admin.auth.admin.oauth.deleteClient(product.oauth_client_id);
+      if (oauthError) return res.status(503).json({ error: 'The OAuth client could not be removed. Try again before deleting the product.' });
+    }
+    const { error } = await admin.from('login_client_apps').delete().eq('id', product.id);
     if (error) throw error;
     res.json({ ok: true });
   }));

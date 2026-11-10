@@ -25,6 +25,20 @@ function draw() {
   $('emailSection').hidden = !A.canChangeEmail; $('delSection').hidden = !A.canDelete; $('delPwRow').hidden = !A.canChangePassword; $('delCodeRow').hidden = !A.mfa;
   $('mfaOn').hidden = !A.mfa; $('mfaOff').hidden = A.mfa; $('pwSection').hidden = !A.canChangePassword;
   $('products').replaceChildren(...(A.products.length ? A.products.map(p => el('div', { className: 'item' }, el('b', { textContent: p.name }), el('span', { className: 'fine', textContent: t(' last used ') + when(p.at) }))) : [el('p', { className: 'fine', textContent: t('None yet.') })]));
+  $('oauthGrantSection').hidden = !A.oauthAvailable;
+  const grants = A.oauthGrants || [];
+  $('oauthGrants').replaceChildren(...(grants.length ? grants.map(g => {
+    const revoke = el('button', { className: 'link', type: 'button', textContent: t('Revoke access') });
+    revoke.onclick = () => run(async () => {
+      if (!confirm(t('Remove {name} access?', { name: g.name }))) return;
+      await api('account/oauth-grants/revoke', { client_id: g.clientId });
+      say(t('App access removed.'), 'ok');
+      await load();
+    });
+    const details = [g.scopes.length ? g.scopes.join(', ') : '', g.grantedAt ? t('Connected ') + when(g.grantedAt) : ''].filter(Boolean).join(' · ');
+    const host = g.uri ? (() => { try { return new URL(g.uri).hostname; } catch { return ''; } })() : '';
+    return el('div', { className: 'item' }, el('b', { textContent: g.name }), el('span', { className: 'fine', textContent: host ? ' · ' + host : '' }), el('span', { className: 'fine', textContent: details }), revoke);
+  }) : [el('p', { className: 'fine', textContent: t('No connected apps yet.') })]));
   $('events').replaceChildren(...(A.events.length ? A.events.map(e => el('div', { className: 'item fine', textContent: `${when(e.at)} · ${t(METHOD[e.method] || e.method)} · ${t(e.role === 'developer' ? 'Developer' : 'User')}${e.product ? ' · ' + e.product : ''}` })) : [el('p', { className: 'fine', textContent: t('Nothing yet.') })]));
   if (P) {
     $('pkAdd').hidden = !(P.canAdd && window.PublicKeyCredential);

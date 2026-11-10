@@ -9,7 +9,7 @@ A single Express authentication service for Caged Dragon products. It serves the
 - Passkeys (WebAuthn), TOTP two-step verification, account/session management.
 - Central first-party OIDC sign-in using Supabase OAuth authorization-code flow with PKCE (S256), exact redirect allow-lists and consent.
 - OAuth developer app management, product allow-list, admin console and audit events.
-- English, Tamil, and Hindi UI, optional Cloudflare Turnstile, per-IP/per-identifier rate limiting.
+- English and Tamil UI, optional Cloudflare Turnstile, per-IP/per-identifier rate limiting.
 - Supabase Postgres schema with RLS, no public table policies, and server-only privileged access.
 
 The Express application in `server.js` is the single runtime source of truth. A legacy one-time handoff endpoint remains for backward compatibility with older internal demos; new first-party integrations should use the OAuth PKCE flow in `docs/PRODUCTS.md`. `index.js` exports the same app for managed Node hosting.
@@ -80,12 +80,12 @@ The Docker image uses Node 20 Alpine and runs as the non-root `node` user. `/hea
 
 ## 5. Add a first-party product
 
-Only register products you own. Register the exact OAuth callback URL(s); wildcard callbacks are not allowed. Each product receives a public OAuth client (no client secret) and must use PKCE.
+Only register products you own. Use `/admin` or the CLI to provide an exact product origin and callback URL; wildcard callbacks are not allowed. Registration creates a real public OAuth client (no client secret) and saves its exact redirect allow-list. Removing the product removes its OAuth client. Every product must use PKCE.
 
 ```bash
 npm run products -- add arcadevault "ArcadeVault" https://arcadevault.example.com https://arcadevault.example.com/auth/callback
 npm run products -- list
-npm run products -- off arcadevault
+npm run products -- delete arcadevault
 ```
 
 See [`docs/PRODUCTS.md`](docs/PRODUCTS.md) for the PKCE browser SDK and backend integration guidance.
@@ -98,12 +98,18 @@ npm test           # end-to-end tests against the included Supabase mock
 npm run db:check   # read-only check against the configured Supabase project
 ```
 
-For current setup tasks that must be completed outside the codebase (SMTP, SMS provider, deployment URL, optional CAPTCHA), see [`docs/SETUP.md`](docs/SETUP.md). For the initial local walkthrough, see [`docs/FIRST_RUN.md`](docs/FIRST_RUN.md).
+
+### Product integration examples
+
+- `examples/demo-product` is a browser-only OIDC + PKCE learning demo. It needs a registered public client ID and an exact callback URL.
+- `examples/oidc-bff` demonstrates server-side code exchange, signature/JWKS verification, HttpOnly sessions and server-held refresh tokens. Its in-memory session map is illustrative only; production deployments must use a durable shared session store and encrypt refresh tokens at rest.
+
+For current setup tasks that must be completed outside the codebase (SMTP, SMS provider, deployment URL, optional CAPTCHA), see [`docs/SETUP.md`](docs/SETUP.md) and [`docs/EMAIL_DELIVERY.md`](docs/EMAIL_DELIVERY.md). For the initial local walkthrough, see [`docs/FIRST_RUN.md`](docs/FIRST_RUN.md).
 
 ## Security defaults
 - The Supabase security advisor also reports leaked-password protection disabled and other warnings in unrelated Caged Dragon schemas/functions. Review the Supabase Security Advisor before public launch; do not blindly change other product schemas.
-- First-party product sign-in uses OAuth authorization-code + PKCE; callback URLs are exact-match registered. Do not use implicit flow or copy the portal cookie to products.
-- The browser SDK keeps access tokens in memory only. For sensitive production apps, use a backend-for-frontend (BFF) and keep refresh tokens server-side.
+- First-party product sign-in uses OAuth authorization-code + PKCE; callback URLs are exact-match registered. The browser SDK must be configured with `data-auth-url="https://gbeurqibcfvquacasofq.supabase.co/auth/v1"`; this is the Supabase Auth issuer, not the portal's Vercel origin. Do not use implicit flow or copy the portal cookie to products.
+- The browser SDK keeps tokens in memory only and supports refresh; product-local sign-out is the default. For production apps, use a backend-for-frontend (BFF), verify ID-token signatures against the Supabase JWKS, and keep refresh tokens server-side. The Supabase OAuth Server must be enabled and an asymmetric JWT signing key selected before the OAuth flow can work.
 
 - Public client keys are used for end-user Auth; the Supabase secret/service-role key is server-only.
 - All `login_*` tables have RLS enabled and no public `anon`/`authenticated` table access.
@@ -111,3 +117,14 @@ For current setup tasks that must be completed outside the codebase (SMTP, SMS p
 - Secure, HTTP-only cookies are used in production; HTTPS is required for production origins.
 - Phone/SMS, email delivery features (password reset/change-email), account deletion, CAPTCHA, and custom legal/domain integrations remain explicitly gated until configured.
 - Account deletion is off by default; review shared-product cleanup before enabling it.
+
+
+### OAuth sign-in experience
+
+The hosted Caged Dragon identity page is the destination opened by a product's sign-in action. It intentionally does not show a second “Continue with Caged Dragon” button. Users sign in or create an account on this page; an existing Caged Dragon session is resumed automatically for a registered product, and the OAuth consent screen is shown when authorization is required.
+
+The sign-in and consent layouts include responsive breakpoints for phones, tablets, landscape screens, and desktop, with touch-sized controls and reduced-motion support.
+
+### Launch readiness snapshot
+
+See [`docs/LAUNCH_READINESS.md`](docs/LAUNCH_READINESS.md) for the 10 November 2026 live Supabase audit, completed database work, and the remaining dashboard/provider actions required before public launch.

@@ -130,11 +130,22 @@ test('admin area is invisible to others and works for admins', async () => {
   const user = new Client(); await signup(user, 'normal@ex.com'); assert.equal((await user.get('/api/admin/overview')).status, 404);
   const a = new Client(); await signup(a, 'admin@ex.com');
   const o = await a.get('/api/admin/overview'); assert.equal(o.status, 200, o.text); assert.ok(o.json.stats.accounts >= 1); assert.equal(o.json.products[0].slug, 'demo');
-  assert.equal((await a.post('/api/admin/products', { slug: 'game', name: 'Game', origin: 'https://game.example.com' })).status, 200);
-  assert.equal((await a.post('/api/admin/products', { slug: 'bad', name: 'Bad', origin: 'http://game.example.com' })).status, 400);
-  assert.ok((await a.get('/api/admin/overview')).json.products.some(p => p.slug === 'game'));
-  assert.equal((await a.post('/api/admin/products/toggle', { slug: 'game', active: false })).status, 200);
-  const blocked = await signin(new Client(), 'a@ex.com', { redirect_to: 'https://game.example.com/x' }); assert.equal(blocked.json.redirect, null, 'turned-off product');
+  const registered = await a.post('/api/admin/products', {
+    slug: 'game', name: 'Game Product', origin: 'https://game.example.com',
+    redirect_uri: 'https://game.example.com/auth/callback'
+  });
+  assert.equal(registered.status, 200, registered.text);
+  assert.ok(registered.json.client_id);
+  assert.ok(mock.st.oauthClients.has(registered.json.client_id), 'creates a real public OAuth client');
+  assert.equal((await a.post('/api/admin/products', { slug: 'bad', name: 'Bad', origin: 'http://game.example.com', redirect_uri: 'http://game.example.com/auth/callback' })).status, 400);
+  assert.equal((await a.post('/api/admin/products', { slug: 'mismatch', name: 'Mismatch', origin: 'https://game.example.com', redirect_uri: 'https://evil.example/auth/callback' })).status, 400);
+  const listed = (await a.get('/api/admin/overview')).json.products.find(p => p.slug === 'game');
+  assert.equal(listed.oauth_client_id, registered.json.client_id);
+  assert.deepEqual(listed.redirect_uris, ['https://game.example.com/auth/callback']);
+  const removed = await a.post('/api/admin/products/delete', { slug: 'game' });
+  assert.equal(removed.status, 200, removed.text);
+  assert.equal(mock.st.oauthClients.has(registered.json.client_id), false, 'removing a product also removes its OAuth client');
+  assert.ok(!(await a.get('/api/admin/overview')).json.products.some(p => p.slug === 'game'));
 });
 test('deleting an account needs the right password and removes the person everywhere', async () => {
   const c = new Client(); await signup(c, 'bye@ex.com');
@@ -154,4 +165,35 @@ test('products can call the token endpoint from the browser (CORS) only from the
   const ok = await fetch(base + '/api/token', { method: 'OPTIONS', headers: { Origin: PRODUCT, 'Access-Control-Request-Method': 'POST' } });
   assert.equal(ok.status, 204); assert.equal(ok.headers.get('access-control-allow-origin'), PRODUCT);
   assert.equal((await fetch(base + '/api/token', { method: 'OPTIONS', headers: { Origin: 'https://evil.example' } })).status, 403);
+});
+
+test('OAuth consent displays the product request, records an approved grant, and redirects back', async () => {
+  const c = new Client(); await signup(c, 'oauth-consent@ex.com');
+  const user = mock.byEmail('oauth-consent@ex.com');
+  const client = { id: 'oauth-client-demo', name: 'Demo OAuth Product', uri: 'https://demo.example.test', logo_uri: '' };
+  mock.st.t.login_client_apps.push({ id: 'oauth-app-row', slug: 'oauth-demo', name: 'Demo OAuth Product', allowed_origin: 'https://demo.example.test', is_active: true,
+    oauth_client_id: client.id, redirect_uris: ['https://demo.example.test/auth/callback'] });
+  mock.st.oauthAuthorizations.set('oauth-auth-1', { authorization_id: 'oauth-auth-1', user_id: user.id,
+    redirect_uri: 'https://demo.example.test/auth/callback', client, scope: 'openid email profile', state: 'state-demo' });
+  const page = await c.get('/oauth/consent?authorization_id=oauth-auth-1&lang=en');
+  assert.equal(page.status, 200); assert.match(page.text, /Demo OAuth Product/); assert.match(page.text, /See your email address/);
+  const decision = await c.post('/oauth/decision', { authorization_id: 'oauth-auth-1', decision: 'approve' });
+  assert.equal(decision.status, 303); assert.match(decision.res.headers.get('location'), /^https:\/\/demo\.example\.test\/auth\/callback\?code=mock-authorization-code&state=state-demo$/);
+  assert.equal(mock.st.oauthGrants.length, 1); assert.equal(mock.st.login_app_grants.length, 1);
+  assert.ok(mock.st.login_events.some(e => e.method === 'oauth' && e.client_app_id === 'oauth-app-row'));
+});
+
+test('account can list and revoke an OAuth client grant', async () => {
+  const c = new Client(); await signup(c, 'oauth-revoke@ex.com');
+  const user = mock.byEmail('oauth-revoke@ex.com');
+  mock.st.oauthGrants.push({ user_id: user.id, client_id: 'oauth-client-revoke', client: { id: 'oauth-client-revoke', name: 'Old Product', uri: 'https://old.example.test', logo_uri: '' }, scopes: ['email', 'profile'], granted_at: new Date().toISOString() });
+  mock.st.t.login_client_apps.push({ id: 'local-oauth-revoke', slug: 'old-product', name: 'Old Product', allowed_origin: 'https://old.example.test', is_active: true, oauth_client_id: 'oauth-client-revoke', redirect_uris: ['https://old.example.test/callback'] });
+  mock.st.t.login_app_grants.push({ user_id: user.id, client_app_id: 'local-oauth-revoke', last_used_at: new Date().toISOString() });
+  const account = await c.get('/api/account');
+  assert.equal(account.status, 200); assert.equal(account.json.oauthAvailable, true);
+  assert.equal(account.json.oauthGrants[0].clientId, 'oauth-client-revoke');
+  const revoked = await c.post('/api/account/oauth-grants/revoke', { client_id: 'oauth-client-revoke' });
+  assert.equal(revoked.status, 200); assert.equal(mock.st.oauthGrants.length, 0);
+  assert.equal(mock.st.t.login_app_grants.length, 0, 'portal-side grant record is removed too');
+  assert.deepEqual((await c.get('/api/account')).json.oauthGrants, []);
 });

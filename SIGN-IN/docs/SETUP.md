@@ -4,6 +4,8 @@ These steps are deliberately kept out of the codebase because they require owner
 
 ## 1. Supabase project and database
 
+The live CAGED_DRAGON database has the account and sign-in schemas plus the OIDC/identity migrations applied and the secure-origin constraint validated. The incremental migrations are preserved in [`migrations/`](migrations/). The identity backfill migration seeds existing Auth users into the portal account/method registry without inventing historical login events. For a brand-new project, use the complete standalone [`database.sql`](database.sql); for an already-running project, apply only unapplied migration files in timestamp order and never re-run the seed against existing users unless intentionally reconciling identity records.
+
 Use the Supabase project named **CAGED_DRAGON**. In its SQL Editor, run [`database.sql`](database.sql) once. Then configure the same project's values in the deployment environment:
 
 - `SUPABASE_URL`: Project URL.
@@ -19,6 +21,8 @@ A custom domain is not required. Deploy first to the hosting provider's HTTPS UR
 Passkeys are bound to the deployed hostname. If you later move from a host-provided URL to a custom domain, users will need to register passkeys again on the new hostname. Leave `WEBAUTHN_RP_ID` empty unless you intentionally need a non-default relying-party ID.
 
 ## 3. Email/password and email delivery
+
+See [`EMAIL_DELIVERY.md`](EMAIL_DELIVERY.md) for the sender setup checklist and current built-in SMTP restrictions.
 
 Email/password authentication is included and does not require a Caged Dragon-owned mailbox for users to sign in. However, email confirmation, password reset, and change-email messages require a sending service.
 
@@ -41,9 +45,10 @@ For development, Supabase supports fixed test phone numbers and OTPs without sen
 
 ## 5. OAuth / products
 
-- In Supabase > Authentication > OAuth Server, enable the OAuth server and set Authorization Path to `/oauth/consent`. This is required for the central portal to act as the authorization/consent experience. Confirm the project exposes the OAuth discovery metadata before production.
-- Register each first-party product with exact callback URLs: `npm run products -- add <slug> "<Name>" <https://origin> <https://origin/auth/callback>`. The command creates a public OAuth client and stores its ID/callback allow-list.
-- Use authorization-code + PKCE (S256); never use implicit flow or put a client secret in browser code. Prefer a backend-for-frontend (BFF) for production sessions.
+- In Supabase > Authentication > OAuth Server, enable OAuth 2.1 server capabilities and set Authorization Path to `/oauth/consent`. The live Auth logs audited on 2026-11-10 still returned `404: OAuth server is disabled`; this must be enabled by a Supabase project Owner/Administrator before OAuth can work.
+- In Supabase > Authentication > JWT Signing Keys, select an asymmetric signing key (RS256 or ES256) as the active signing key. Supabase requires asymmetric signing for OIDC ID tokens requested with the `openid` scope. Confirm `https://gbeurqibcfvquacasofq.supabase.co/auth/v1/.well-known/openid-configuration` and `https://gbeurqibcfvquacasofq.supabase.co/auth/v1/.well-known/jwks.json` return valid metadata/JWKS after enabling the OAuth server.
+- Register each first-party product from `/admin` or with its exact callback URLs: `npm run products -- add <slug> "<Name>" <https://origin> <https://origin/auth/callback>`. Both paths now create a real public OAuth client (`token_endpoint_auth_method=none`, authorization-code + PKCE) and store its exact callback allow-list. Removal deletes both the registry entry and OAuth client. There are currently no product OAuth clients registered in the live CAGED_DRAGON project; real product origins/callbacks are required.
+- Use authorization-code + PKCE (S256); never use implicit flow or put a client secret in browser code. Product SDK script tags must include `data-auth-url="https://gbeurqibcfvquacasofq.supabase.co/auth/v1"`. Prefer a backend-for-frontend (BFF) for production sessions and verify ID-token signatures server-side using the Supabase JWKS.
 
 ## 6. Supabase Auth security settings
 
@@ -77,6 +82,11 @@ Enable TOTP in Supabase > Authentication > Multi-Factor. Users can enrol an auth
 | Password reset / change email | Implemented, gated | Configure custom SMTP; then `EMAIL_ENABLED=1` |
 | Passkeys | Implemented | Deploy over HTTPS; users register passkeys against final hostname |
 | TOTP MFA | Implemented | Enable TOTP provider in Supabase Auth |
-| OAuth developer apps | Implemented | Enable Supabase OAuth Server and set callback URL when required |
+| OAuth authorization server | Portal consent routes + PKCE SDK implemented; admin and CLI registration now create real public OAuth clients; connected-app grant revocation included | Enable OAuth Server, set `/oauth/consent`, choose an asymmetric JWT signing key, register real product callbacks, then complete a live PKCE + token-verification test |
 | Custom domain | Not required | A host-provided HTTPS URL works; configure custom DNS only when you own a domain |
 | CAPTCHA | Optional | Configure Turnstile with Supabase Attack Protection |
+
+
+## 9. Product registration through the admin portal
+
+The `/admin` product form requires an exact product HTTPS origin and an exact callback URL on that origin. It provisions a public OAuth client directly in Supabase Auth, saves its client ID and redirect allow-list in `login_client_apps`, and displays the client ID for the product configuration. Removing a product also removes the OAuth client. Do not use placeholder/example domains for production registrations.

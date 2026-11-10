@@ -63,9 +63,12 @@ test('passkey sign-in starts with a challenge', async () => {
   const r = await post('/api/passkey/login/options', {}, base); assert.equal(r.status, 200);
   assert.ok((await r.json()).challenge); assert.match(r.headers.get('set-cookie') || '', /cd_pk=/);
 });
-test('consent screen speaks Tamil and Hindi', async () => {
-  assert.match(await (await fetch(base + '/oauth/consent?lang=ta')).text(), /கோரிக்கை செல்லாது/);
-  assert.match(await (await fetch(base + '/oauth/consent?lang=hi')).text(), /अनुरोध मान्य नहीं/);
+test('consent screen supports Tamil and English only', async () => {
+  const ta = await (await fetch(base + '/oauth/consent?lang=ta')).text();
+  const en = await (await fetch(base + '/oauth/consent?lang=hi')).text();
+  assert.match(ta, /கோரிக்கை செல்லாது/);
+  assert.match(en, /Request not valid/);
+  assert.doesNotMatch(en, /अनुरोध मान्य नहीं/);
 });
 
 test('fonts are served from this site and nothing is loaded from other sites', async () => {

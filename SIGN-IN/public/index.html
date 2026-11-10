@@ -14,13 +14,13 @@
 <link rel="manifest" href="/site.webmanifest">
 <link rel="stylesheet" href="/style.css">
 </head>
-<body>
+<body class="auth-page">
 <aside class="brand" id="brand"><img src="/logo.webp" alt="Caged Dragon – Unleash Possibilities" width="1000" height="1000"></aside>
 
 <main>
 <div class="card" id="card" data-role="user">
   <header class="head"><img class="mark" src="/product-128.png" alt="Caged Dragon Sign-In" width="52" height="52"><span class="who"><span class="brandname">Sign-In</span><small class="by" data-t>by Caged Dragon</small></span>
-    <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ta">தமிழ்</button><button type="button" data-lang="hi">हिन्दी</button></span>
+    <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ta">தமிழ்</button></span>
   </header>
 
   <div class="roles" id="roles" role="tablist" aria-label="Account type">
@@ -33,10 +33,9 @@
   <div id="target" class="target" hidden></div>
 
   <div id="signin">
-    <button class="cd" id="cdBtn" type="button"><img src="/company-128.png" alt="" width="26" height="26"><span id="cdLabel">Continue with Caged-Dragon</span></button>
-    <div class="row" id="after" hidden><a href="/account" data-t>Manage account</a><span id="devLinkWrap" hidden> · <a href="/developer" data-t>Developer dashboard</a></span></div>
+    <div class="row account-links" id="after" hidden><a href="/account" data-t>Manage account</a><span id="devLinkWrap" hidden> · <a href="/developer" data-t>Developer dashboard</a></span></div>
     <button class="cd" id="pkBtn" type="button" hidden><span aria-hidden="true">🔑</span> <span data-t>Sign in with a passkey</span></button>
-    <div class="or" data-t>or sign in with</div>
+    <div class="or" id="signinDivider" data-t hidden>or sign in with</div>
     <div class="tabs" id="tabs" role="tablist">
       <button role="tab" id="tabEmail" aria-selected="true" type="button" data-t>Email</button>
       <button role="tab" id="tabPhone" aria-selected="false" type="button" data-t>Mobile number</button>

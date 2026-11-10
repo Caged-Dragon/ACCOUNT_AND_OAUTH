@@ -10,7 +10,7 @@
     "products": "node scripts/products.js",
     "test": "node --test test/*.test.js",
     "demo": "node examples/demo-product/server.mjs",
-    "check": "node --check index.js && node --check server.js && node --check routes-extra.js && node --check routes-passkey.js && node --check scripts/products.js && node --check scripts/verify-db.js && node --check public/app.js && node --check public/account.js && node --check public/dev.js && node --check test/flows.test.js && node --check test/ratelimit.test.js && node --check test/smoke.test.js && node --check test/mock-supabase.js && node --check public/sdk.js",
+    "check": "node --check index.js && node --check server.js && node --check routes-extra.js && node --check routes-passkey.js && node --check scripts/products.js && node --check scripts/verify-db.js && node --check public/app.js && node --check public/account.js && node --check public/dev.js && node --check public/admin.js && node --check test/flows.test.js && node --check test/ratelimit.test.js && node --check test/smoke.test.js && node --check test/mock-supabase.js && node --check test/ui.test.js && node --check test/i18n.test.js && node --check test/oidc-sdk.test.js && node --check test/bff.test.js && node --check docs/verify-id-token.mjs && node --check examples/oidc-bff/server.mjs && node --check examples/demo-product/server.mjs && node --check public/sdk.js",
     "db:check": "node scripts/verify-db.js"
   },
   "engines": {
@@ -19,7 +19,7 @@
   "dependencies": {
     "@simplewebauthn/browser": "^14.0.0",
     "@simplewebauthn/server": "^14.1.0",
-    "@supabase/supabase-js": "^2.45.4",
+    "@supabase/supabase-js": "2.119.0",
     "cookie-parser": "^1.4.6",
     "cross-env": "^10.1.0",
     "dotenv": "^16.4.5",

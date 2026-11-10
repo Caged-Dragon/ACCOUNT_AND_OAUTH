@@ -39,8 +39,33 @@ if (error || !Array.isArray(data)) {
   console.log('OK   public.login_resolve_client');
 }
 
+// OIDC client fields must exist for exact callback allow-lists and PKCE clients.
+const { error: oauthColumnsError } = await db.from('login_client_apps')
+  .select('oauth_client_id,redirect_uris,client_type').limit(0);
+if (oauthColumnsError) {
+  failed = true;
+  console.error(`FAIL public.login_client_apps OIDC columns: ${oauthColumnsError.message}`);
+} else {
+  console.log('OK   public.login_client_apps OIDC columns');
+}
+
+// Safe no-op: deliberately use a nonexistent client so this validates that the
+// service-role-only OAuth audit RPC exists without inserting an audit event.
+const { error: oauthAuditError } = await db.rpc('login_record_oauth_grant_v2', {
+  p_user_id: '00000000-0000-0000-0000-000000000000',
+  p_oauth_client_id: 'db-check-no-client',
+  p_redirect_uri: 'https://db-check.invalid/callback',
+  p_user_agent: 'db-check',
+});
+if (oauthAuditError) {
+  failed = true;
+  console.error(`FAIL public.login_record_oauth_grant_v2: ${oauthAuditError.message}`);
+} else {
+  console.log('OK   public.login_record_oauth_grant_v2');
+}
+
 if (failed) {
-  console.error('\nDatabase setup is incomplete. Run docs/database.sql in the CAGED_DRAGON Supabase project, then run npm run db:check again.');
+  console.error('\nDatabase setup is incomplete. Run the current docs/database.sql in a new CAGED_DRAGON project (or apply only unapplied migration files to an existing project), then run npm run db:check again.');
   process.exit(1);
 }
 console.log('\nCaged Dragon login database is ready.');

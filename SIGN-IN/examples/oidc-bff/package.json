@@ -1,0 +1,14 @@
+{
+  "name": "caged-dragon-oidc-bff-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "jose": "^6.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -4,7 +4,6 @@ const qs = new URLSearchParams(location.search);
 const explicitRedirect = qs.get('redirect_to') || qs.get('redirect') || qs.get('return_to') || '';
 const redirectTo = explicitRedirect || document.referrer || '';
 const nextPath = /^\/(?!\/)[^\s\\]{0,2047}$/.test(qs.get('next') || '') ? qs.get('next') : '';
-const silent = qs.get('silent') === '1';
 const requireMfa = qs.get('mfa') === 'required';
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const saved = (() => { try { return localStorage.getItem('cd_role'); } catch { return null; } })();
@@ -48,7 +47,6 @@ function render() {
   $('emailGo').textContent = t(isSignUp ? (dev ? 'Create developer account' : 'Create account') : 'Sign in');
   $('emailToggleText').textContent = t(isSignUp ? 'Already have an account?' : dev ? 'New developer?' : 'New to Caged Dragon?');
   $('emailToggle').textContent = t(isSignUp ? 'Sign in' : dev ? 'Create a developer account' : 'Create an account');
-  $('cdLabel').textContent = ctx.account ? t('Continue as ') + ctx.account.identifier : t('Continue with Caged-Dragon');
   $('pwToggle').textContent = t($('password').type === 'password' ? 'Show' : 'Hide');
   $('newPwToggle').textContent = t($('newPw').type === 'password' ? 'Show' : 'Hide');
   $('resend').textContent = left > 0 ? t('Resend code in ') + left + 's' : t('Resend code');
@@ -58,6 +56,7 @@ function applyFeatures(f) {
   if (f) features = f;
   $('tabs').hidden = !features.sms; if (!features.sms) { $('panePhone').hidden = true; $('paneEmail').hidden = false; }
   $('pkBtn').hidden = !(features.passkeys && window.PublicKeyCredential);
+  $('signinDivider').hidden = $('pkBtn').hidden;
   render();
 }
 function setRole(r) { role = r; try { localStorage.setItem('cd_role', r); } catch {} $('devPrompt').hidden = true; say(''); render(); }
@@ -71,11 +70,12 @@ window.addEventListener('langchange', render);
 function showAccount(a) {
   ctx.account = a;
   if (!$('switch')) {
-    const row = document.createElement('div'); row.className = 'row'; row.id = 'switch';
-    const b = document.createElement('button'); b.className = 'link'; b.type = 'button'; b.textContent = t('Use a different account'); b.dataset.t = '';
+    const b = document.createElement('button');
+    b.className = 'link'; b.type = 'button'; b.id = 'switch';
+    b.textContent = t('Use a different account');
     b.dataset.en = 'Use a different account';
     b.onclick = async () => { await api('logout', {}); location.reload(); };
-    row.appendChild(b); $('cdBtn').after(row);
+    $('after').append(' · ', b);
   }
   if (!ctx.client && !nextPath) { $('after').hidden = false; $('devLinkWrap').hidden = !a.roles?.includes('developer'); }
   render();
@@ -98,14 +98,9 @@ function done(d) {
     say(t('Signed in. ') + (back ? t('Taking you back to {name}…', { name: ctx.client.name }) : t('One moment…')), 'ok');
     $('brand').classList.add('open');
     setTimeout(() => location.replace(d.redirect), reduce ? 0 : 700);
-  } else say(t('You’re signed in to Caged Dragon. Open one of our products and choose Continue with Caged-Dragon.'), 'ok');
+  } else say(t('You’re signed in to Caged Dragon. Your account is ready to use with connected products.'), 'ok');
 }
 
-$('cdBtn').onclick = async () => {
-  if (!ctx.account) { say(t('Sign in once below. After that, this button continues instantly.')); return $('email').focus(); }
-  if (!ctx.client && !nextPath) return say(t('You’re signed in to Caged Dragon. Open one of our products and choose Continue with Caged-Dragon.'), 'ok');
-  done(await call('continue', base()));
-};
 $('devEnable').onclick = async () => done(await call('developer/enable', base()));
 
 function tab(w) {
@@ -226,7 +221,12 @@ function initCaptcha(siteKey) {
     if (c.links?.terms && c.links?.privacy) { $('termsLink').href = c.links.terms; $('privacyLink').href = c.links.privacy; $('legal').hidden = false; }
     if (c.account) {
       showAccount(c.account);
-      if (silent && c.client && !nextPath) { say(t('One moment…')); done(await call('continue', base())); } // already signed in: straight back to the product
+      if (c.client && !nextPath) {
+        // The user already chose the product's sign-in action. Reuse the valid
+        // Caged Dragon session and return to that product without a second CTA.
+        say(t('One moment…'));
+        done(await call('continue', base()));
+      }
     }
   } catch { say(t('Can’t reach the sign-in service. Try again in a moment.'), 'err'); }
 })();

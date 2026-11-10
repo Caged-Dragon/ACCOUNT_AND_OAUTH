@@ -6,25 +6,27 @@
 <link rel="stylesheet" href="/style.css">
 </head>
 <body class="plain"><main class="card wide admin-wide" data-role="developer">
-  <header class="head"><img class="mark" src="/product-128.png" alt="Caged Dragon Sign-In" width="52" height="52"><span class="who"><span class="brandname">Sign-In</span><small class="by">admin</small></span><a class="toplink" href="/account">Account</a></header>
-  <h1>Admin</h1>
+  <header class="head"><img class="mark" src="/product-128.png" alt="Caged Dragon Sign-In" width="52" height="52"><span class="who"><span class="brandname">Sign-In</span><small class="by" data-t>Admin</small></span><span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ta">தமிழ்</button></span><a class="toplink" href="/account" data-t>Account</a></header>
+  <h1 data-t>Admin</h1>
   <div class="stats" id="stats"></div>
 
-  <h2>Your products</h2>
-  <p class="fine">These get a full Caged Dragon session. Register only products you own.</p>
-  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th>Name</th><th>ID</th><th>Address</th><th>On</th><th></th></tr></thead><tbody id="products"></tbody></table></div>
+  <h2 data-t>Your products</h2>
+  <p class="fine" data-t>These get a full Caged Dragon session. Register only products you own.</p>
+  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th data-t>Name</th><th data-t>ID</th><th data-t>Address</th><th data-t>OAuth client ID</th><th></th></tr></thead><tbody id="products"></tbody></table></div>
   <form id="addProduct" novalidate>
-    <h2>Add a product</h2>
-    <label><span>ID (lowercase, dashes)</span><input id="slug" placeholder="arcadevault"></label>
-    <label><span>Name</span><input id="pname" placeholder="ArcadeVault"></label>
-    <label><span>Address</span><input id="origin" placeholder="https://arcadevault.example.com"></label>
-    <button class="go" type="submit">Save product</button>
+    <h2 data-t>Add a product</h2>
+    <label><span data-t>ID (lowercase, dashes)</span><input id="slug" placeholder="arcadevault"></label>
+    <label><span data-t>Name</span><input id="pname" placeholder="ArcadeVault"></label>
+    <label><span data-t>Product origin</span><input id="origin" type="url" autocomplete="url" placeholder="https://arcadevault.example.com" required></label>
+    <label><span data-t>OAuth callback address</span><input id="redirectUri" type="url" autocomplete="url" placeholder="https://arcadevault.example.com/auth/callback" required></label>
+    <p class="fine" data-t>Only the exact HTTPS callback address is allowed. Public products use authorization code with PKCE; no client secret is created.</p>
+    <button class="go" type="submit" data-t>Save product</button>
   </form>
 
-  <h2>Developer apps</h2>
-  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th>Name</th><th>Owner</th><th>Client ID</th><th></th></tr></thead><tbody id="devApps"></tbody></table></div>
+  <h2 data-t>Developer apps</h2>
+  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th data-t>Name</th><th data-t>Owner</th><th data-t>Client ID</th><th></th></tr></thead><tbody id="devApps"></tbody></table></div>
 
-  <h2>Recent sign-ins</h2>
-  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th>When</th><th>Method</th><th>Type</th><th>Product</th></tr></thead><tbody id="events"></tbody></table></div>
+  <h2 data-t>Recent sign-ins</h2>
+  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th data-t>When</th><th data-t>Method</th><th data-t>Type</th><th data-t>Product</th></tr></thead><tbody id="events"></tbody></table></div>
   <p id="msg" role="status" aria-live="polite"></p>
-</main><script src="/admin.js" defer></script></body></html>
+</main><script src="/i18n.js"></script><script src="/i18n-pages.js"></script><script src="/admin.js" defer></script></body></html>

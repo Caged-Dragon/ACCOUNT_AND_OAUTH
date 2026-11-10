@@ -6,8 +6,6 @@
 @font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/barlow-condensed-latin-700.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD}
 @font-face{font-family:"Noto Sans Tamil";font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/noto-sans-tamil-tamil-400.woff2) format("woff2");unicode-range:U+0964-0965,U+0B82-0BFA,U+200C-200D,U+20B9,U+25CC}
 @font-face{font-family:"Noto Sans Tamil";font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/noto-sans-tamil-tamil-600.woff2) format("woff2");unicode-range:U+0964-0965,U+0B82-0BFA,U+200C-200D,U+20B9,U+25CC}
-@font-face{font-family:"Noto Sans Devanagari";font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/noto-sans-devanagari-devanagari-400.woff2) format("woff2");unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
-@font-face{font-family:"Noto Sans Devanagari";font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/noto-sans-devanagari-devanagari-600.woff2) format("woff2");unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
 :root{--gold:#E3B010;--gold-d:#9A6F00;--black:#141414;--paper:#FFFDF6;--line:#E6D8A8;--muted:#6B6248;--ok:#1d7a4f;--err:#b3261e;--accent:var(--gold);--accent-ink:var(--black)}
 *{box-sizing:border-box}
 html,body{min-height:100%;margin:0}
@@ -80,7 +78,6 @@ pre{white-space:pre-wrap;word-break:break-word;background:#fff;border:1px solid 
 select,textarea{display:block;width:100%;margin-top:6px;padding:12px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--black);font:inherit}
 details{margin-top:18px}summary{cursor:pointer;font-weight:600}
 #captcha{margin:14px 0 0}
-body{font-family:"Barlow","Noto Sans Tamil","Noto Sans Devanagari",system-ui,sans-serif}
 .linkbtn{text-decoration:none;text-align:center}
 #pkBtn{margin-top:10px}
 
@@ -98,3 +95,77 @@ main.card{display:block;padding:28px}
 
 /* Admin console is intentionally wider than the standard account card. */
 .card.wide.admin-wide{max-width:860px}
+
+
+/* Responsive sign-in experience: compact brand header on smaller screens,
+   comfortable touch targets, and no horizontal overflow on narrow devices. */
+html{scroll-behavior:smooth}
+body{min-width:0;min-height:100vh;min-height:100svh;overflow-x:hidden}
+main{min-width:0}
+.card{min-width:0}
+input,select,textarea{font-size:16px;min-height:48px}
+button{touch-action:manipulation}
+.go,.cd{min-height:48px}
+.roles button,.tabs button{min-height:44px}
+.head{min-width:0;flex-wrap:wrap}
+.who{min-width:0}
+.brandname{overflow-wrap:anywhere}
+.lang{flex-wrap:wrap;justify-content:flex-end}
+.row{overflow-wrap:anywhere}
+.account-links{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px 8px}
+.account-links[hidden]{display:none!important}
+.actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+.scopes{overflow-wrap:anywhere}
+pre,code,td,th{overflow-wrap:anywhere}
+.scroll{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+body.plain{min-height:100vh;min-height:100svh;padding:clamp(12px,3vw,32px)}
+body.plain main.card{width:min(100%,560px);max-width:560px;margin:auto;padding:clamp(18px,4vw,32px)}
+
+@media(max-width:900px){
+  body.auth-page{display:flex;flex-direction:column;min-height:100vh;min-height:100svh}
+  body.auth-page .brand{position:static;top:auto;width:100%;height:auto;min-height:0;padding:14px 16px 4px;overflow:visible;background:transparent}
+  body.auth-page .brand img{width:clamp(72px,14vw,112px);height:auto;margin:0;border-radius:18px;box-shadow:0 8px 24px rgba(120,86,0,.16);-webkit-mask-image:none;mask-image:none}
+  body.auth-page main{width:100%;flex:1;align-items:flex-start;justify-content:center;padding:14px 18px max(24px,env(safe-area-inset-bottom))}
+  body.auth-page .card{max-width:480px}
+}
+@media(max-width:560px){
+  body.auth-page .brand{padding:10px 14px 2px}
+  body.auth-page .brand img{width:68px;border-radius:15px}
+  body.auth-page main{padding:10px 12px max(20px,env(safe-area-inset-bottom))}
+  .card{padding:20px 17px;border-radius:16px;box-shadow:0 12px 34px rgba(120,86,0,.13)}
+  .head{gap:9px;margin-bottom:17px}
+  .mark{width:44px;height:44px}
+  .brandname{font-size:1.45rem}
+  .by{font-size:.76rem}
+  .lang{margin-left:auto;gap:0}
+  .lang button{padding:6px 7px;font-size:.78rem}
+  h1{font-size:1.85rem}
+  .sub{font-size:.94rem;margin-bottom:17px}
+  .roles{margin-bottom:17px}
+  .roles button{font-size:1rem;padding:8px 5px}
+  .actions{grid-template-columns:1fr}
+  .actions .go,.actions .cd{width:100%}
+  .co{margin-top:20px;padding-top:14px;gap:10px}
+  .co img{width:46px;height:46px}
+  .legal{font-size:.78rem}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  table{font-size:.82rem}
+  th,td{padding:7px 5px}
+}
+@media(max-width:380px){
+  .card{padding:17px 14px}
+  .head{gap:8px}
+  .mark{width:40px;height:40px}
+  .brandname{font-size:1.32rem}
+  .lang button{padding:5px 5px;font-size:.74rem}
+  .row{font-size:.86rem}
+  .actions{gap:8px}
+}
+@media(orientation:landscape) and (max-height:600px) and (max-width:900px){
+  body.auth-page .brand{padding:8px 12px 0}
+  body.auth-page .brand img{width:52px}
+  body.auth-page main{padding-top:8px;padding-bottom:12px}
+  .card{padding:18px 22px}
+  .co{margin-top:14px;padding-top:10px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

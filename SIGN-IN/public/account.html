@@ -12,7 +12,7 @@
 </head>
 <body class="plain"><main class="card wide" data-role="user">
   <header class="head"><img class="mark" src="/product-128.png" alt="Caged Dragon Sign-In" width="52" height="52"><span class="who"><span class="brandname">Sign-In</span><small class="by" data-t>by Caged Dragon</small></span>
-    <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ta">தமிழ்</button><button type="button" data-lang="hi">हिन्दी</button></span></header>
+    <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ta">தமிழ்</button></span></header>
   <h1 data-t>Your account</h1>
   <p class="sub"><span data-t>Signed in as</span> <b id="who">…</b> <span id="roles"></span> <a href="/developer" id="devLink" hidden data-t>Developer dashboard</a> <a href="/admin" id="adminLink" hidden data-t>Admin</a></p>
   <p id="cont" hidden><a class="go linkbtn" id="contLink" data-t>Continue where you left off</a></p>
@@ -56,6 +56,7 @@
   </div>
 
   <h2 data-t>Products you use</h2><div id="products"></div>
+  <section id="oauthGrantSection" hidden><h2 data-t>Connected apps</h2><p class="fine" data-t>Review products that have permission to sign in with your Caged Dragon account. You can revoke access at any time.</p><div id="oauthGrants"></div></section>
   <h2 data-t>Recent sign-ins</h2><div id="events"></div>
 
   <h2 data-t>Security</h2>

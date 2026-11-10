@@ -7,7 +7,7 @@ alter table public.login_client_apps
   add column if not exists client_type text not null default 'public';
 alter table public.login_client_apps drop constraint if exists login_client_apps_secure_origin_check;
 alter table public.login_client_apps add constraint login_client_apps_secure_origin_check
-  check (allowed_origin ~ '^https://[^/?#]+$' or allowed_origin ~ '^http://(localhost|127\\.0\\.0\\.1)(:[0-9]{1,5})?$') not valid;
+  check (allowed_origin ~ '^https://[^/?#]+$' or allowed_origin ~ '^http://(localhost|127\.0\.0\.1)(:[0-9]{1,5})?$') not valid;
 alter table public.login_client_apps drop constraint if exists login_client_apps_client_type_check;
 alter table public.login_client_apps add constraint login_client_apps_client_type_check check (client_type in ('public','confidential'));
 alter table public.login_client_apps drop constraint if exists login_client_apps_redirects_check;

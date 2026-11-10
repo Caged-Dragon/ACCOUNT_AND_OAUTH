@@ -442,8 +442,8 @@ app.get('/oauth/consent', wrap(async (req, res) => {
   if (!('authorization_id' in d)) return res.redirect(d.redirect_url); // already allowed before
   const scopes = String(d.scope || '').split(' ').filter(Boolean);
   const secure = /^https:/.test(d.redirect_uri) || /^http:\/\/(localhost|127\.0\.0\.1)/.test(d.redirect_uri);
-  res.send(shell(t('Sign in to {name}?', { name: d.client.name }, true), `
-<p>${t('<b>{name}</b> wants to sign you in as <b>{who}</b>. It will be able to:', { name: d.client.name, who: ident(cur.user) })}</p>
+  res.send(shell(t('Sign in to {name}?', { name: esc(d.client.name) }, true), `
+<p>${t('<b>{name}</b> wants to sign you in as <b>{who}</b>. It will be able to:', { name: esc(d.client.name), who: esc(ident(cur.user)) })}</p>
 <ul class="scopes">${scopes.map(s => `<li>${SCOPES[s] ? t(SCOPES[s]) : esc(s)}</li>`).join('')}</ul>
 <p class="fine">${t('It can’t change your account or see your password.')}</p>
 ${secure ? '' : `<p id="msg" class="err" role="alert">${t('Warning: this product isn’t using a secure address.')}</p>`}
@@ -458,9 +458,27 @@ app.post('/oauth/decision', sameOrigin, wrap(async (req, res) => {
   const cur = await currentSession(req, res);
   if (!cur || !id || needsCode(cur)) return res.redirect('/');
   const c = await userClient(cur);
+  let authorizationDetails = null;
+  if (approve) {
+    const details = await c.auth.oauth.getAuthorizationDetails(id);
+    if (details.error || !details.data || !('authorization_id' in details.data))
+      return res.status(400).send(shell(t('Request expired'), `<p>${t('This sign-in request is no longer valid. Go back to the product and try again.')}</p>`, L));
+    authorizationDetails = details.data;
+  }
   const { data, error } = approve ? await c.auth.oauth.approveAuthorization(id, { skipBrowserRedirect: true })
                                   : await c.auth.oauth.denyAuthorization(id, { skipBrowserRedirect: true });
   if (error || !data?.redirect_url) return res.status(400).send(shell(t('Something went wrong'), `<p>${t('We couldn’t finish that. Go back to the product and try again.')}</p>`, L));
+  if (approve && authorizationDetails?.client?.id && authorizationDetails?.redirect_uri) {
+    const { error: auditError } = await admin.rpc('login_record_oauth_grant_v2', {
+      p_user_id: cur.user.id,
+      p_oauth_client_id: authorizationDetails.client.id,
+      p_redirect_uri: authorizationDetails.redirect_uri,
+      p_user_agent: req.get('user-agent') || null
+    });
+    // OAuth approval has already succeeded. Do not strand the user if audit
+    // persistence is temporarily unavailable; emit no token or PII to logs.
+    if (auditError) console.error('OAuth grant audit persistence failed:', auditError.code || 'unknown');
+  }
   res.redirect(303, data.redirect_url);
 }));
 
@@ -471,8 +489,12 @@ app.post('/oauth/switch', sameOrigin, wrap(async (req, res) => {
   res.redirect(303, id ? '/?next=' + encodeURIComponent(consentPath(id)) : '/');
 }));
 
-app.get('/logout', wrap(async (req, res) => { // products send people here to end the Caged Dragon sign-in too
-  if (req.cookies[AT]) await admin.auth.admin.signOut(req.cookies[AT], 'local').catch(() => {});
+app.get('/logout', wrap(async (req, res) => { // product logout is local unless global scope is explicitly requested
+  const scope = req.query.scope === 'global' ? 'global' : 'local';
+  if (req.cookies[AT]) {
+    const { error } = await admin.auth.admin.signOut(req.cookies[AT], scope);
+    if (error) console.error('Central sign-out failed:', error.code || 'unknown');
+  }
   clearCookies(res);
   const to = String(req.query.redirect_to || '').slice(0, 2048);
   res.redirect((await resolveClient(to)) ? to : '/');

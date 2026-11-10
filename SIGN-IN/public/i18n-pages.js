@@ -17,6 +17,7 @@ T.add({
     'Passkeys': 'பாஸ்கீகள்', 'Use your fingerprint, face or screen lock instead of a password.': 'கடவுச்சொல்லுக்குப் பதிலாக உங்கள் கைரேகை, முகம் அல்லது திரைப்பூட்டைப் பயன்படுத்துங்கள்.',
     'Add a passkey': 'பாஸ்கீ சேர்', 'Remove': 'நீக்கு', 'Passkey added.': 'பாஸ்கீ சேர்க்கப்பட்டது.', 'Passkey removed.': 'பாஸ்கீ நீக்கப்பட்டது.', 'Passkey': 'பாஸ்கீ',
     'Products you use': 'நீங்கள் பயன்படுத்தும் தயாரிப்புகள்', 'Recent sign-ins': 'சமீபத்திய உள்நுழைவுகள்', 'Security': 'பாதுகாப்பு', 'Sign out everywhere': 'எல்லா இடங்களிலும் வெளியேறு',
+    'Connected apps': 'இணைக்கப்பட்ட செயலிகள்', 'Review products that have permission to sign in with your Caged Dragon account. You can revoke access at any time.': 'உங்கள் Caged Dragon கணக்கைப் பயன்படுத்த அனுமதி பெற்ற தயாரிப்புகளைப் பாருங்கள். எந்த நேரத்திலும் அணுகலை நீக்கலாம்.', 'Revoke access': 'அணுகலை நீக்கு', 'Remove {name} access?': '{name} செயலியின் அணுகலை நீக்கவா?', 'App access removed.': 'செயலியின் அணுகல் நீக்கப்பட்டது.', 'No connected apps yet.': 'இணைக்கப்பட்ட செயலிகள் இன்னும் இல்லை.', 'Connected ': 'இணைக்கப்பட்டது ',
     'Back to sign in': 'உள்நுழைவுக்குத் திரும்பு', 'None yet.': 'இன்னும் இல்லை.', 'Nothing yet.': 'இன்னும் எதுவும் இல்லை.', ' last used ': ' கடைசியாகப் பயன்படுத்தியது ', 'Continue where you left off': 'விட்ட இடத்திலிருந்து தொடரவும்',
     'Mobile': 'கைபேசி', 'This account has no password.': 'இந்தக் கணக்குக்கு கடவுச்சொல் இல்லை.', 'Your current password isn’t right.': 'உங்கள் தற்போதைய கடவுச்சொல் சரியில்லை.',
     'Two-step verification is already on.': 'இரண்டு-படி சரிபார்ப்பு ஏற்கனவே இயக்கத்தில் உள்ளது.', 'Couldn’t start set-up. Try again.': 'அமைப்பைத் தொடங்க முடியவில்லை. மீண்டும் முயலவும்.',
@@ -32,41 +33,7 @@ T.add({
     'Addresses must start with https:// (http only for localhost) and have no # part.': 'முகவரிகள் https:// என்று தொடங்க வேண்டும் (localhost-க்கு மட்டும் http) மற்றும் # பகுதி இல்லாமல் இருக்க வேண்டும்.',
     'You can register up to 10 apps.': 'அதிகபட்சம் 10 செயலிகளைப் பதிவு செய்யலாம்.', 'Couldn’t create the app. Check the details and try again.': 'செயலியை உருவாக்க முடியவில்லை. விவரங்களைச் சரிபார்த்து மீண்டும் முயலவும்.',
     'App not found.': 'செயலி கிடைக்கவில்லை.', 'Only apps with a secret can be rotated.': 'ரகசியம் உள்ள செயலிகளுக்கு மட்டுமே மாற்ற முடியும்.'
-  },
-  hi: {
-    'by Caged Dragon': 'Caged Dragon की ओर से',
-    'Sign in with a passkey': 'पासकी से साइन इन करें', 'Cancelled.': 'रद्द किया गया।',
-    'That email already has an account. Sign in instead.': 'उस ईमेल का खाता पहले से है। साइन इन करें।',
-    'That passkey isn’t registered here.': 'वह पासकी यहाँ रजिस्टर नहीं है।', 'Couldn’t verify that passkey.': 'उस पासकी को सत्यापित नहीं कर सके।',
-    'Mobile sign-in isn’t switched on yet.': 'मोबाइल साइन-इन अभी चालू नहीं है।', 'Password reset by email isn’t switched on yet.': 'ईमेल से पासवर्ड रीसेट अभी चालू नहीं है।',
-    'This product needs two-step verification. Turn it on in your account, then come back.': 'इस प्रोडक्ट के लिए दो-चरणीय सत्यापन ज़रूरी है। अपने खाते में इसे चालू करें, फिर वापस आएँ।',
-    'Set up two-step verification': 'दो-चरणीय सत्यापन सेट करें', 'Add an email to your account to use passkeys.': 'पासकी इस्तेमाल करने के लिए अपने खाते में ईमेल जोड़ें।',
-    'Your account': 'आपका खाता', 'Signed in as': 'साइन इन:', 'Account': 'खाता',
-    'Ask for a code from an authenticator app each time you sign in.': 'हर बार साइन इन करते समय ऑथेंटिकेटर ऐप का कोड माँगें।', 'Turn on': 'चालू करें', 'Turn off': 'बंद करें',
-    'Scan this with Google Authenticator, Authy or similar, then enter the 6-digit code.': 'इसे Google Authenticator, Authy या ऐसे किसी ऐप से स्कैन करें, फिर 6 अंकों का कोड दर्ज करें।',
-    'Or type this key:': 'या यह कुंजी टाइप करें:', 'Confirm': 'पुष्टि करें', 'Two-step verification is on.': 'दो-चरणीय सत्यापन चालू है।',
-    'Two-step verification is off.': 'दो-चरणीय सत्यापन बंद है।', 'Enter a current 6-digit code to turn it off': 'बंद करने के लिए अभी का 6 अंकों का कोड दर्ज करें',
-    'Change password': 'पासवर्ड बदलें', 'Current password': 'मौजूदा पासवर्ड', 'At least 8 characters': 'कम से कम 8 अक्षर', 'Password changed.': 'पासवर्ड बदल गया।',
-    'Passkeys': 'पासकी', 'Use your fingerprint, face or screen lock instead of a password.': 'पासवर्ड की जगह अपना फ़िंगरप्रिंट, चेहरा या स्क्रीन लॉक इस्तेमाल करें।',
-    'Add a passkey': 'पासकी जोड़ें', 'Remove': 'हटाएँ', 'Passkey added.': 'पासकी जुड़ गई।', 'Passkey removed.': 'पासकी हटा दी गई।', 'Passkey': 'पासकी',
-    'Products you use': 'आपके इस्तेमाल किए प्रोडक्ट', 'Recent sign-ins': 'हाल के साइन-इन', 'Security': 'सुरक्षा', 'Sign out everywhere': 'हर जगह से साइन आउट करें',
-    'Back to sign in': 'साइन इन पर वापस', 'None yet.': 'अभी कोई नहीं।', 'Nothing yet.': 'अभी कुछ नहीं।', ' last used ': ' आखिरी बार इस्तेमाल: ', 'Continue where you left off': 'जहाँ छोड़ा था वहीं से जारी रखें',
-    'Mobile': 'मोबाइल', 'This account has no password.': 'इस खाते में पासवर्ड नहीं है।', 'Your current password isn’t right.': 'आपका मौजूदा पासवर्ड सही नहीं है।',
-    'Two-step verification is already on.': 'दो-चरणीय सत्यापन पहले से चालू है।', 'Couldn’t start set-up. Try again.': 'सेट-अप शुरू नहीं हो सका। फिर कोशिश करें।',
-    'Couldn’t turn it off. Try again.': 'बंद नहीं हो सका। फिर कोशिश करें।', 'Developer account needed.': 'डेवलपर खाता ज़रूरी है।',
-    'Register your products so people can sign in with Caged Dragon. Each product is a standard OAuth app: it only sees what the person allows.': 'अपने प्रोडक्ट रजिस्टर करें ताकि लोग Caged Dragon से साइन इन कर सकें। हर प्रोडक्ट एक स्टैंडर्ड OAuth ऐप है: वह वही देखता है जो व्यक्ति अनुमति दे।',
-    'Register a product': 'प्रोडक्ट रजिस्टर करें', 'Product name': 'प्रोडक्ट का नाम', 'Website (optional)': 'वेबसाइट (वैकल्पिक)', 'Redirect addresses, one per line (up to 5)': 'रीडायरेक्ट पते, हर पंक्ति में एक (अधिकतम 5)',
-    'Type': 'प्रकार', 'Has a server (keeps a secret)': 'सर्वर है (सीक्रेट रखता है)', 'Browser or mobile only (no secret, uses PKCE)': 'सिर्फ़ ब्राउज़र या मोबाइल (कोई सीक्रेट नहीं, PKCE इस्तेमाल करता है)',
-    'Register product': 'प्रोडक्ट रजिस्टर करें', 'Save these now.': 'इन्हें अभी सहेज लें।', 'The secret is shown only once.': 'सीक्रेट सिर्फ़ एक बार दिखाया जाता है।',
-    'Client ID': 'क्लाइंट आईडी', 'Client secret': 'क्लाइंट सीक्रेट', 'Copy': 'कॉपी करें', 'Copied.': 'कॉपी हो गया।', 'How to connect your product': 'अपना प्रोडक्ट कैसे जोड़ें',
-    'No products yet. Register your first one below.': 'अभी कोई प्रोडक्ट नहीं। अपना पहला प्रोडक्ट नीचे रजिस्टर करें।', 'Delete': 'हटाएँ', 'New secret': 'नया सीक्रेट',
-    'Redirects: ': 'रीडायरेक्ट: ', 'No secret': 'सीक्रेट नहीं', 'Has secret': 'सीक्रेट है', 'Client ID: ': 'क्लाइंट आईडी: ',
-    'Delete {name}? People will no longer be able to sign in to it.': '{name} हटाएँ? लोग अब इसमें साइन इन नहीं कर पाएँगे।', 'Make a new secret? The old one stops working.': 'नया सीक्रेट बनाएँ? पुराना काम करना बंद कर देगा।',
-    'Addresses must start with https:// (http only for localhost) and have no # part.': 'पते https:// से शुरू होने चाहिए (सिर्फ़ localhost के लिए http) और उनमें # वाला हिस्सा नहीं होना चाहिए।',
-    'You can register up to 10 apps.': 'आप अधिकतम 10 ऐप रजिस्टर कर सकते हैं।', 'Couldn’t create the app. Check the details and try again.': 'ऐप नहीं बन सका। जानकारी जाँचकर फिर कोशिश करें।',
-    'App not found.': 'ऐप नहीं मिला।', 'Only apps with a secret can be rotated.': 'सिर्फ़ सीक्रेट वाले ऐप का सीक्रेट बदला जा सकता है।'
-  }
-});
+  }});
 
 T.add({
   ta: {
@@ -78,15 +45,23 @@ T.add({
     'Couldn’t change the email. Try a different address.': 'மின்னஞ்சலை மாற்ற முடியவில்லை. வேறொரு முகவரியை முயலவும்.',
     'Page not found': 'பக்கம் கிடைக்கவில்லை', 'That page doesn’t exist.': 'அந்தப் பக்கம் இல்லை.', 'Something went wrong': 'ஏதோ தவறு நடந்தது',
     'We hit a problem on our side. Try again in a moment.': 'எங்கள் பக்கத்தில் சிக்கல் ஏற்பட்டது. சிறிது நேரம் கழித்து மீண்டும் முயலவும்.'
-  },
-  hi: {
-    'Change email': 'ईमेल बदलें', 'New email': 'नया ईमेल', 'Check both inboxes to confirm the change.': 'बदलाव की पुष्टि के लिए दोनों इनबॉक्स देखें।',
-    'Delete account': 'खाता हटाएँ', 'This permanently deletes your account in every Caged Dragon product. This can’t be undone.': 'यह हर Caged Dragon प्रोडक्ट में आपका खाता हमेशा के लिए हटा देगा। इसे वापस नहीं किया जा सकता।',
-    'Type DELETE to confirm': 'पुष्टि के लिए DELETE टाइप करें', 'Type DELETE to confirm.': 'पुष्टि के लिए DELETE टाइप करें।', 'Delete my account': 'मेरा खाता हटाएँ', 'Account deleted.': 'खाता हटा दिया गया।',
-    'Admin': 'एडमिन', 'Choose a stronger password. Avoid common passwords and your email.': 'मज़बूत पासवर्ड चुनें। आम पासवर्ड और अपने ईमेल से बचें।',
-    'Changing email isn’t switched on yet.': 'ईमेल बदलना अभी चालू नहीं है।', 'Account deletion isn’t switched on yet.': 'खाता हटाना अभी चालू नहीं है।',
-    'Couldn’t change the email. Try a different address.': 'ईमेल नहीं बदल सका। कोई दूसरा पता आज़माएँ।',
-    'Page not found': 'पेज नहीं मिला', 'That page doesn’t exist.': 'वह पेज मौजूद नहीं है।', 'Something went wrong': 'कुछ गड़बड़ हो गई',
-    'We hit a problem on our side. Try again in a moment.': 'हमारी तरफ़ कोई समस्या आई। थोड़ी देर बाद फिर कोशिश करें।'
+  }});
+
+T.add({
+  ta: {
+    'Your products': 'உங்கள் தயாரிப்புகள்',
+    'These get a full Caged Dragon session. Register only products you own.': 'இவை முழுமையான Caged Dragon அமர்வைப் பெறும். உங்களுக்குச் சொந்தமான தயாரிப்புகளை மட்டுமே பதிவு செய்யவும்.',
+    'Table': 'அட்டவணை', 'Name': 'பெயர்', 'ID': 'ஐடி', 'Address': 'முகவரி', 'On': 'இயக்கம்',
+    'Add a product': 'தயாரிப்பைச் சேர்', 'ID (lowercase, dashes)': 'ஐடி (சிறிய எழுத்துகள், கோடுகள்)',
+    'Product origin': 'தயாரிப்பு முகவரி', 'OAuth callback address': 'OAuth திரும்பும் முகவரி',
+    'OAuth client ID': 'OAuth கிளையன்ட் ஐடி', 'Not registered': 'பதிவு செய்யப்படவில்லை',
+    'Only the exact HTTPS callback address is allowed. Public products use authorization code with PKCE; no client secret is created.': 'சரியான HTTPS திரும்பும் முகவரி மட்டுமே அனுமதிக்கப்படும். பொது தயாரிப்புகள் PKCE உடன் authorization code முறையைப் பயன்படுத்தும்; client secret உருவாக்கப்படாது.',
+    'Remove product': 'தயாரிப்பை நீக்கு', 'Remove {name} and its OAuth client?': '{name} மற்றும் அதன் OAuth கிளையன்டை நீக்கவா?',
+    'OAuth product registered. Copy this public client ID into the product configuration: {id}': 'OAuth தயாரிப்பு பதிவு செய்யப்பட்டது. இந்த பொது கிளையன்ட் ஐடியை தயாரிப்பு அமைப்பில் நகலெடுக்கவும்: {id}',
+    'Save product': 'தயாரிப்பைச் சேமி', 'Developer apps': 'டெவலப்பர் செயலிகள்', 'Owner': 'உரிமையாளர்',
+    'Recent sign-ins': 'சமீபத்திய உள்நுழைவுகள்', 'When': 'நேரம்', 'Method': 'முறை', 'Type': 'வகை',
+    'Product': 'தயாரிப்பு', 'Accounts': 'கணக்குகள்', 'Developers': 'டெவலப்பர்கள்', 'Passkeys': 'பாஸ்கீகள்', 'Sign-ins (24h)': 'உள்நுழைவுகள் (24 மணி)', 'Yes': 'ஆம்', 'No': 'இல்லை', 'email': 'மின்னஞ்சல்', 'phone': 'கைபேசி', 'oauth': 'OAuth', 'passkey': 'பாஸ்கீ', 'user': 'பயனர்', 'developer': 'டெவலப்பர்',
+    'Turn off': 'நிறுத்து', 'Turn on': 'இயக்கு', 'Delete': 'நீக்கு', 'None yet.': 'இன்னும் இல்லை.',
+    'Saved.': 'சேமிக்கப்பட்டது.', 'Delete {name}?': '{name}-ஐ நீக்கவா?'
   }
 });
