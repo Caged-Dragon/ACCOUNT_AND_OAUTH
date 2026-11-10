@@ -36,7 +36,7 @@ before(async () => {
   mock = await startMock(MPORT);
   mock.st.t.login_client_apps.push({ id: 'app1', slug: 'demo', name: 'Demo Product', allowed_origin: PRODUCT, is_active: true });
   proc = spawn(process.execPath, ['server.js'], { stdio: 'inherit', env: { PATH: process.env.PATH, SUPABASE_URL: `http://127.0.0.1:${MPORT}`, SUPABASE_ANON_KEY: 'a', SUPABASE_SERVICE_ROLE_KEY: 'b',
-    LOGIN_CODE_KEY: crypto.randomBytes(32).toString('hex'), PUBLIC_URL: base, PORT: String(PORT), UNVERIFIED_SIGNUP: '1', ADMIN_EMAILS: 'admin@ex.com',
+    LOGIN_CODE_KEY: crypto.randomBytes(32).toString('hex'), PUBLIC_URL: base, PORT: String(PORT), UNVERIFIED_SIGNUP: '1',
     ALLOW_ACCOUNT_DELETION: '1', AUTH_RATE_LIMIT: '1000', AUTH_RATE_LIMIT_EMAIL: '1000' } });
   for (let i = 0; i < 60; i++) { try { await fetch(base + '/healthz'); return; } catch { await new Promise(r => setTimeout(r, 100)); } }
   throw new Error('server did not start');
@@ -119,33 +119,19 @@ test('consent screen: signed-out goes to sign-in; two-step users must enter the 
 });
 test('account page data, change password, passkey list', async () => {
   const c = new Client(); await signup(c, 'acct@ex.com');
-  const a = (await c.get('/api/account')).json; assert.equal(a.identifier, 'acct@ex.com'); assert.deepEqual(a.roles, ['user']); assert.equal(a.canDelete, true); assert.equal(a.canChangeEmail, false); assert.equal(a.isAdmin, false);
+  const a = (await c.get('/api/account')).json; assert.equal(a.identifier, 'acct@ex.com'); assert.deepEqual(a.roles, ['user']); assert.equal(a.canDelete, true); assert.equal(a.canChangeEmail, false); 
   assert.equal((await c.post('/api/account/password', { current: PW, password: 'password123' })).status, 400);
   assert.equal((await c.post('/api/account/password', { current: 'nope-nope-1', password: 'Another-pass-7' })).status, 400);
   assert.equal((await c.post('/api/account/password', { current: PW, password: 'Another-pass-7' })).status, 200);
   assert.deepEqual((await c.get('/api/passkey/list')).json.passkeys, []);
   assert.equal((await c.post('/api/account/email', { email: 'new@ex.com', password: 'Another-pass-7' })).status, 403, 'needs email service');
 });
-test('admin area is invisible to others and works for admins', async () => {
-  const user = new Client(); await signup(user, 'normal@ex.com'); assert.equal((await user.get('/api/admin/overview')).status, 404);
-  const a = new Client(); await signup(a, 'admin@ex.com');
-  const o = await a.get('/api/admin/overview'); assert.equal(o.status, 200, o.text); assert.ok(o.json.stats.accounts >= 1); assert.equal(o.json.products[0].slug, 'demo');
-  const registered = await a.post('/api/admin/products', {
-    slug: 'game', name: 'Game Product', origin: 'https://game.example.com',
-    redirect_uri: 'https://game.example.com/auth/callback'
-  });
-  assert.equal(registered.status, 200, registered.text);
-  assert.ok(registered.json.client_id);
-  assert.ok(mock.st.oauthClients.has(registered.json.client_id), 'creates a real public OAuth client');
-  assert.equal((await a.post('/api/admin/products', { slug: 'bad', name: 'Bad', origin: 'http://game.example.com', redirect_uri: 'http://game.example.com/auth/callback' })).status, 400);
-  assert.equal((await a.post('/api/admin/products', { slug: 'mismatch', name: 'Mismatch', origin: 'https://game.example.com', redirect_uri: 'https://evil.example/auth/callback' })).status, 400);
-  const listed = (await a.get('/api/admin/overview')).json.products.find(p => p.slug === 'game');
-  assert.equal(listed.oauth_client_id, registered.json.client_id);
-  assert.deepEqual(listed.redirect_uris, ['https://game.example.com/auth/callback']);
-  const removed = await a.post('/api/admin/products/delete', { slug: 'game' });
-  assert.equal(removed.status, 200, removed.text);
-  assert.equal(mock.st.oauthClients.has(registered.json.client_id), false, 'removing a product also removes its OAuth client');
-  assert.ok(!(await a.get('/api/admin/overview')).json.products.some(p => p.slug === 'game'));
+test('administrator routes are no longer exposed by the central identity portal', async () => {
+  const user = new Client(); await signup(user, 'normal@ex.com');
+  assert.equal((await user.get('/admin')).status, 404);
+  assert.equal((await user.get('/admin.html')).status, 404);
+  assert.equal((await user.get('/api/admin/overview')).status, 404);
+  assert.equal((await user.post('/api/admin/products', { slug: 'demo', name: 'Demo', origin: 'https://demo.example', redirect_uri: 'https://demo.example/callback' })).status, 404);
 });
 test('deleting an account needs the right password and removes the person everywhere', async () => {
   const c = new Client(); await signup(c, 'bye@ex.com');

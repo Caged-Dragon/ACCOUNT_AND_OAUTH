@@ -8,7 +8,7 @@ const validRedirect = u => {
 };
 
 export function mountExtra(app, d) {
-  const { z, admin, anon, currentSession, sameOrigin, strict, wrap, parse, rolesOf, ident, clearCookies, setCookies, SB_URL, ADMIN_EMAILS, ALLOW_DELETE, EMAIL_ENABLED, aalOf, hasTotp, weakPassword, WEAK, PUBLIC_ORIGIN } = d;
+  const { z, admin, anon, currentSession, sameOrigin, strict, wrap, parse, rolesOf, ident, clearCookies, setCookies, SB_URL, ALLOW_DELETE, EMAIL_ENABLED, aalOf, hasTotp, weakPassword, WEAK, PUBLIC_ORIGIN } = d;
 
   const guard = needDev => async (req, res, next) => {
     try {
@@ -116,7 +116,7 @@ export function mountExtra(app, d) {
     const nm = Object.fromEntries((apps ?? []).map(a => [a.id, a.name]));
     res.json({
       identifier: ident(u), canChangePassword: !!u.email, canChangeEmail: !!u.email && EMAIL_ENABLED, canDelete: ALLOW_DELETE && !!u.email,
-      isAdmin: !!u.email && ADMIN_EMAILS.has(u.email.toLowerCase()), roles: [...roles], mfa: !!f?.totp?.length,
+      roles: [...roles], mfa: !!f?.totp?.length,
       events: (ev ?? []).map(e => ({ method: e.method, role: e.role, at: e.created_at, product: nm[e.client_app_id] ?? null })),
       products: (gr ?? []).map(g => ({ name: nm[g.client_app_id] ?? 'Product', at: g.last_used_at })),
       oauthAvailable,
@@ -239,117 +239,4 @@ export function mountExtra(app, d) {
     res.json({ ok: true });
   }));
 
-  // ---------- admin console (people listed in ADMIN_EMAILS; two-step required if they have it) ----------
-  const adminGuard = async (req, res, next) => {
-    try {
-      const cur = await currentSession(req, res), u = cur?.user;
-      const ok = u?.email && ADMIN_EMAILS.has(u.email.toLowerCase()) && u.email_confirmed_at && (!hasTotp(u) || aalOf(cur.at) === 'aal2');
-      if (!ok) return res.status(404).json({ error: 'Not found.' });
-      req.cur = cur; next();
-    } catch (e) { next(e); }
-  };
-  const count = async q => {
-    const { count: value, error } = await q;
-    if (error) throw error;
-    return value ?? 0;
-  };
-  const head = t => admin.from(t).select('*', { count: 'exact', head: true });
-
-  app.get('/api/admin/overview', adminGuard, wrap(async (req, res) => {
-    const since = new Date(Date.now() - 864e5).toISOString();
-    const [accounts, developers, passkeys, devApps, last24] = await Promise.all([
-      count(head('login_accounts')), count(head('login_account_roles').eq('role', 'developer')), count(head('login_passkeys')),
-      count(head('login_developer_apps')), count(head('login_events').gte('created_at', since))]);
-    const { data: products, error: productsError } = await admin.from('login_client_apps').select('id,slug,name,allowed_origin,is_active,oauth_client_id,redirect_uris,created_at').order('created_at');
-    if (productsError) throw productsError;
-    const slug = Object.fromEntries((products ?? []).map(p => [p.id, p.slug]));
-    const { data: ev, error: eventError } = await admin.from('login_events').select('method,role,created_at,client_app_id').order('created_at', { ascending: false }).limit(25);
-    const { data: dev, error: developerError } = await admin.from('login_developer_apps').select('client_id,name,user_id,created_at').order('created_at', { ascending: false }).limit(50);
-    if (eventError || developerError) throw eventError || developerError;
-    const owners = {};
-    for (const id of new Set((dev ?? []).map(x => x.user_id))) {
-      const { data: ownerData, error: ownerError } = await admin.auth.admin.getUserById(id);
-      if (ownerError) throw ownerError;
-      owners[id] = ownerData?.user?.email ?? id;
-    }
-    res.json({
-      stats: { accounts, developers, passkeys, devApps, last24 },
-      products: (products ?? []).map(({ id, ...p }) => p),
-      events: (ev ?? []).map(e => ({ method: e.method, role: e.role, at: e.created_at, product: slug[e.client_app_id] ?? null })),
-      devApps: (dev ?? []).map(x => ({ client_id: x.client_id, name: x.name, owner: owners[x.user_id], at: x.created_at }))
-    });
-  }));
-
-  app.post('/api/admin/products', sameOrigin, strict, adminGuard, wrap(async (req, res) => {
-    const b = parse(z.object({
-      slug: z.string().regex(/^[a-z0-9][a-z0-9-]{1,40}$/),
-      name: z.string().trim().min(2).max(80),
-      origin: z.string().max(300),
-      redirect_uri: z.string().max(2048)
-    }), req.body);
-    let origin, callback;
-    try { origin = new URL(b.origin); callback = new URL(b.redirect_uri); }
-    catch { return res.status(400).json({ error: 'Enter a valid product origin and callback address.' }); }
-    const safeWebUrl = u => !u.username && !u.password && !u.hash &&
-      (u.protocol === 'https:' || (u.protocol === 'http:' && /^(localhost|127\.0\.0\.1)$/.test(u.hostname)));
-    if (!safeWebUrl(origin) || origin.search || (origin.pathname !== '/' && origin.pathname !== ''))
-      return res.status(400).json({ error: 'Product origin must be an HTTPS origin only (HTTP is allowed for localhost development).' });
-    if (!safeWebUrl(callback) || callback.search || callback.hash || callback.origin !== origin.origin)
-      return res.status(400).json({ error: 'The exact callback must use the same HTTPS origin and must not include a query or fragment.' });
-
-    const { data: existing, error: lookupError } = await admin.from('login_client_apps')
-      .select('oauth_client_id').eq('slug', b.slug).maybeSingle();
-    if (lookupError) throw lookupError;
-    if (existing?.oauth_client_id) return res.status(409).json({ error: 'That product already has an OAuth client. Remove it first before registering a replacement.' });
-
-    const { data: client, error: oauthError } = await admin.auth.admin.oauth.createClient({
-      client_name: b.name,
-      client_uri: origin.origin,
-      redirect_uris: [callback.href],
-      scope: 'openid email profile',
-      grant_types: ['authorization_code', 'refresh_token'],
-      response_types: ['code'],
-      token_endpoint_auth_method: 'none'
-    });
-    if (oauthError || !client?.client_id) {
-      console.error('admin product OAuth registration failed:', oauthError?.code || 'unknown');
-      return res.status(503).json({ error: 'OAuth client registration is unavailable. Confirm that the Supabase OAuth Server is enabled, then try again.' });
-    }
-    const { error } = await admin.from('login_client_apps').upsert({
-      slug: b.slug,
-      name: b.name,
-      allowed_origin: origin.origin.toLowerCase(),
-      is_active: true,
-      oauth_client_id: client.client_id,
-      redirect_uris: [callback.href],
-      client_type: 'public'
-    }, { onConflict: 'slug' });
-    if (error) {
-      await admin.auth.admin.oauth.deleteClient(client.client_id);
-      return res.status(400).json({ error: 'The product could not be saved. Check its ID and address.' });
-    }
-    res.json({ ok: true, client_id: client.client_id });
-  }));
-  app.post('/api/admin/products/delete', sameOrigin, strict, adminGuard, wrap(async (req, res) => {
-    const b = parse(z.object({ slug: z.string().max(60) }), req.body);
-    const { data: product, error: lookupError } = await admin.from('login_client_apps')
-      .select('id,oauth_client_id').eq('slug', b.slug).maybeSingle();
-    if (lookupError) throw lookupError;
-    if (!product) return res.status(404).json({ error: 'Product not found.' });
-    if (product.oauth_client_id) {
-      const { error: oauthError } = await admin.auth.admin.oauth.deleteClient(product.oauth_client_id);
-      if (oauthError) return res.status(503).json({ error: 'The OAuth client could not be removed. Try again before deleting the product.' });
-    }
-    const { error } = await admin.from('login_client_apps').delete().eq('id', product.id);
-    if (error) throw error;
-    res.json({ ok: true });
-  }));
-  app.post('/api/admin/dev-apps/delete', sameOrigin, adminGuard, wrap(async (req, res) => {
-    const b = parse(z.object({ client_id: z.string().max(100) }), req.body);
-    const { error: oauthError } = await admin.auth.admin.oauth.deleteClient(b.client_id);
-    if (oauthError) throw oauthError;
-    const { error } = await admin.from('login_developer_apps').delete().eq('client_id', b.client_id);
-    if (error) throw error;
-    res.json({ ok: true });
-  }));
 }

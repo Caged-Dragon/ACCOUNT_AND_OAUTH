@@ -128,3 +128,8 @@ The sign-in and consent layouts include responsive breakpoints for phones, table
 ### Launch readiness snapshot
 
 See [`docs/LAUNCH_READINESS.md`](docs/LAUNCH_READINESS.md) for the 10 November 2026 live Supabase audit, completed database work, and the remaining dashboard/provider actions required before public launch.
+
+
+## Separate administration application
+
+The administrator dashboard is a separate application in the companion `admin-app/` folder of the Caged Dragon Admin Suite. This identity portal intentionally no longer serves `/admin`, `/admin.html`, or `/api/admin/*`, and it no longer contains administrator navigation or an admin allowlist environment variable. Normal user sign-in, account settings, developer features, passkeys, MFA and OAuth consent remain in this portal. Deploy the separate admin app and verify its OAuth flow before deploying this portal change.

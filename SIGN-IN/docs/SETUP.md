@@ -68,7 +68,6 @@ Enable TOTP in Supabase > Authentication > Multi-Factor. Users can enrol an auth
 
 ## 8. Admin access and launch controls
 
-- `ADMIN_EMAILS`: comma-separated, confirmed email addresses that may access `/admin`.
 - `ALLOW_ACCOUNT_DELETION=0`: keep disabled until every connected product is prepared for shared-identity deletion.
 - `RATE_LIMIT_STORE=memory`: suitable for one instance. Use `database` for multiple instances so throttling is shared through the Supabase database.
 - `TRUST_PROXY`: leave blank on local hosting; set only to the exact trusted proxy hop count when you control the proxy. Vercel is detected automatically.
@@ -90,3 +89,6 @@ Enable TOTP in Supabase > Authentication > Multi-Factor. Users can enrol an auth
 ## 9. Product registration through the admin portal
 
 The `/admin` product form requires an exact product HTTPS origin and an exact callback URL on that origin. It provisions a public OAuth client directly in Supabase Auth, saves its client ID and redirect allow-list in `login_client_apps`, and displays the client ID for the product configuration. Removing a product also removes the OAuth client. Do not use placeholder/example domains for production registrations.
+
+
+Administration now runs in a separate app. Configure the admin allowlist and admin-only secrets only in the standalone `admin-app/` Vercel project.

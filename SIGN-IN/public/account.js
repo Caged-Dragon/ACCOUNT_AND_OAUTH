@@ -21,7 +21,7 @@ function draw() {
   if (!A) return;
   $('who').textContent = A.identifier;
   $('roles').replaceChildren(...A.roles.map(r => el('span', { className: 'badge' + (r === 'developer' ? ' dev' : ''), textContent: t(r === 'developer' ? 'Developer' : 'User') })));
-  $('devLink').hidden = !A.roles.includes('developer'); $('adminLink').hidden = !A.isAdmin;
+  $('devLink').hidden = !A.roles.includes('developer');
   $('emailSection').hidden = !A.canChangeEmail; $('delSection').hidden = !A.canDelete; $('delPwRow').hidden = !A.canChangePassword; $('delCodeRow').hidden = !A.mfa;
   $('mfaOn').hidden = !A.mfa; $('mfaOff').hidden = A.mfa; $('pwSection').hidden = !A.canChangePassword;
   $('products').replaceChildren(...(A.products.length ? A.products.map(p => el('div', { className: 'item' }, el('b', { textContent: p.name }), el('span', { className: 'fine', textContent: t(' last used ') + when(p.at) }))) : [el('p', { className: 'fine', textContent: t('None yet.') })]));

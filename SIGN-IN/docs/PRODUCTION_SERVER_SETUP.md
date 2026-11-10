@@ -66,7 +66,6 @@ Open **Vercel → `sigin-in-website` → Settings → Environment Variables**. C
 | `SUPABASE_SERVICE_ROLE_KEY` | The CAGED_DRAGON server-only secret key (`sb_secret_...`) or legacy `service_role` key |
 | `PUBLIC_URL` | `https://caged-dragon-auth.vercel.app` — origin only, no path or query string |
 | `LOGIN_CODE_KEY` | One randomly generated 32-byte key represented by exactly 64 hexadecimal characters |
-| `ADMIN_EMAILS` | Comma-separated list of confirmed Caged Dragon account email addresses allowed to open `/admin` |
 | `EMAIL_ENABLED` | `0` until SMTP delivery and recovery/change-email flows are tested; then `1` |
 | `SMS_ENABLED` | `0` until Supabase Phone Auth and a real SMS provider are configured and tested; then `1` |
 | `UNVERIFIED_SIGNUP` | `0` in production; never enable it in production |
@@ -222,8 +221,6 @@ Use only supported scopes: `openid`, `email`, `profile`, and `phone` when phone 
 ## 7. Register each eligible product
 
 Only register real product applications after OAuth 2.1 is enabled and the callback route is implemented.
-
-1. Ensure your confirmed admin email is listed in the Vercel `ADMIN_EMAILS` environment variable.
 2. Sign in to the portal.
 3. Open `https://caged-dragon-auth.vercel.app/admin`.
 4. Complete TOTP verification if enabled for the administrator account.
@@ -312,7 +309,6 @@ Before public launch:
 - Enroll administrators in TOTP MFA and verify that privileged actions require the expected MFA level.
 - Consider Cloudflare Turnstile for signup and exposed forms. Configure the public site key in Vercel and the matching secret in Supabase Auth Attack Protection.
 - Keep `ALLOW_ACCOUNT_DELETION=0` until account deletion and cleanup across all connected applications is designed and tested.
-- Restrict `ADMIN_EMAILS` to confirmed, controlled accounts.
 - Review Supabase Security Advisor findings. Do not bulk-change shared-project RLS policies or SECURITY DEFINER functions without auditing the product that owns each object.
 - Review logs to ensure no passwords, OTPs, access tokens, refresh tokens, client secrets or PII are recorded.
 
@@ -362,7 +358,6 @@ Then verify in a real browser:
 4. New account signup and email confirmation work.
 5. Password recovery works after SMTP is configured.
 6. `/account` shows the signed-in account and connected applications.
-7. Non-admin users cannot use `/admin`; confirmed `ADMIN_EMAILS` administrators can.
 8. OAuth discovery and JWKS endpoints return valid JSON.
 9. A registered test product can initiate PKCE authorization.
 10. The central consent screen displays the requesting product and requested scopes correctly.
@@ -388,7 +383,7 @@ A passing health check is not proof that OAuth is enabled. A successful build is
 | Signup works only for existing users / email never arrives | SMTP not configured, sender not verified, or the address is already confirmed; test a new address and inspect Auth logs |
 | Forgot-password control is hidden | Configure/test SMTP, then set `EMAIL_ENABLED=1` and redeploy |
 | Phone tab is missing | `SMS_ENABLED=0` or phone provider is not ready |
-| Admin page responds as not found | Verify the account email, email confirmation, `ADMIN_EMAILS`, and MFA state |
+| Admin page | Administration is hosted in the separate `admin-app/` project, not in this identity portal |
 | Passkeys stop working after changing domain | Passkeys are tied to the relying-party hostname; users may need to register new passkeys on the new hostname |
 
 ## 14. Rollback and recovery
@@ -417,3 +412,8 @@ A passing health check is not proof that OAuth is enabled. A successful build is
 - [ ] RTC main/cart, RTC admin and RTC mail remain untouched.
 
 **Launch status wording:** The portal may be deployed and database-ready while still not being a functioning central OAuth provider. Call it OAuth-ready only after Supabase OAuth is enabled, at least one real product client is registered, and an end-to-end PKCE flow succeeds.
+
+
+## Administrator application boundary
+
+The admin dashboard has been moved to the separate `admin-app/` project. Do not configure `ADMIN_EMAILS` on this identity portal. Configure the allowlist only on the standalone admin deployment. The portal source intentionally returns 404 for `/admin` and has no `/api/admin/*` routes.

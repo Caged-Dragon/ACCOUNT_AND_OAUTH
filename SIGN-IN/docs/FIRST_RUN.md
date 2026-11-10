@@ -26,7 +26,6 @@
 - [ ] Visit `/account`, register a passkey on localhost, sign out, then sign in with it.
 - [ ] Enable TOTP in Supabase Auth, enrol it from `/account`, sign out and verify that the next login asks for a code.
 - [ ] Visit `/developer`, register a test OAuth app, and verify that client details are shown.
-- [ ] Set `ADMIN_EMAILS` to a confirmed test account and visit `/admin`.
 - [ ] Check `/healthz` and `/readyz`.
 
 ## Phone OTP test
@@ -43,4 +42,6 @@ The browser demo intentionally keeps tokens in memory and is only for learning. 
 - [ ] Configure SMS provider/template/registration and test delivery.
 - [ ] Configure Turnstile if desired.
 - [ ] Set `NODE_ENV=production`; keep `UNVERIFIED_SIGNUP=0`.
-- [ ] Set `ADMIN_EMAILS`, rotate test credentials, and review account-deletion requirements.
+
+
+Admin setup is documented in the companion `admin-app/README.md`; it is not part of this identity portal first-run checklist.

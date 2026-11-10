@@ -47,7 +47,6 @@ const SMS_ENABLED = flag('SMS_ENABLED'), EMAIL_ENABLED = flag('EMAIL_ENABLED'), 
 if (UNVERIFIED_SIGNUP && PROD) fatal('UNVERIFIED_SIGNUP is development-only. For production without SMTP, disable Confirm Email in Supabase Auth until custom SMTP is configured.');
 if (UNVERIFIED_SIGNUP) console.warn('WARNING: UNVERIFIED_SIGNUP is on. New email addresses are auto-confirmed; development only.');
 const AT = PROD ? '__Host-cd_at' : 'cd_at', RT = PROD ? '__Host-cd_rt' : 'cd_rt'; // __Host- cookies can't be set or read from other subdomains
-const ADMIN_EMAILS = new Set((process.env.ADMIN_EMAILS || '').split(',').map(x => x.trim().toLowerCase()).filter(Boolean));
 const ALLOW_DELETE = flag('ALLOW_ACCOUNT_DELETION'), RATE_DB = (process.env.RATE_LIMIT_STORE || '').trim().toLowerCase() === 'database';
 const positiveInt = (key, fallback, min = 1, max = 1000) => {
   const raw = process.env[key];
@@ -501,7 +500,7 @@ app.get('/logout', wrap(async (req, res) => { // product logout is local unless 
 }));
 app.get('/.well-known/jwks.json', (req, res) => { res.set({ 'Cache-Control': 'public, max-age=3600', 'Access-Control-Allow-Origin': '*' }); res.json(JWKS); });
 
-mountExtra(app, { z, admin, anon, currentSession, sameOrigin, strict, wrap, parse, rolesOf, ident, clearCookies, setCookies, SB_URL, ADMIN_EMAILS, ALLOW_DELETE, EMAIL_ENABLED, aalOf, hasTotp, weakPassword, WEAK, PUBLIC_ORIGIN });
+mountExtra(app, { z, admin, anon, currentSession, sameOrigin, strict, wrap, parse, rolesOf, ident, clearCookies, setCookies, SB_URL, ALLOW_DELETE, EMAIL_ENABLED, aalOf, hasTotp, weakPassword, WEAK, PUBLIC_ORIGIN });
 mountPasskey(app, { z, admin, currentSession, sameOrigin, strict, wrap, parse, seal, unseal, mintSession, proceed, setCookies, cookieBase, PUBLIC_ORIGIN, common, opt, aalOf, hasTotp });
 app.get('/readyz', async (req, res) => {
   try {
@@ -512,6 +511,7 @@ app.get('/readyz', async (req, res) => {
     return res.status(503).json({ ok: false, database: 'unavailable' });
   }
 });
+app.get(['/admin', '/admin.html'], (req, res) => res.status(404).sendFile(path.join(PUBLIC_DIR, '404.html')));
 app.get('/healthz', (req, res) => res.json({ ok: true }));
 app.use(express.static(PUBLIC_DIR, { index: 'index.html', extensions: ['html'], maxAge: PROD ? '1h' : 0 }));
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));

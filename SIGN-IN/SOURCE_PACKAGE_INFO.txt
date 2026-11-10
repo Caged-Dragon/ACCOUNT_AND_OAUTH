@@ -1,13 +1,12 @@
-CAGED DRAGON CENTRAL AUTH PORTAL — SOURCE PACKAGE
-
-This package contains the Express-based SIGN-IN portal source snapshot.
-The core source files (server.js, package.json, index.js, vercel.json, docs/SETUP.md, docs/LAUNCH_READINESS.md, public/style.css, public/admin.html) were checked against the current GitHub main-branch file contents during packaging.
+CAGED DRAGON CENTRAL AUTH PORTAL — AUDITED SOURCE PACKAGE
 
 Repository: https://github.com/Caged-Dragon/ACCOUNT_AND_OAUTH
 Source folder: SIGN-IN/
 Vercel project: sigin-in-website
 Public portal: https://caged-dragon-auth.vercel.app
 
-No local .env file or production secret values are included. Copy .env.example to .env for local development and fill values securely. Never commit .env or expose SUPABASE_SERVICE_ROLE_KEY / LOGIN_CODE_KEY.
+This archive contains the complete SIGN-IN application source snapshot plus the admin authorization UX correction, a regression test, and admin onboarding/audit documentation. It does not include production .env files, credentials, private signing keys, or live provider secrets.
 
-The server setup runbook is in docs/PRODUCTION_SERVER_SETUP.md.
+Read docs/CODE_AUDIT_REPORT.md for verified checks and outstanding verification limitations. Read docs/ADMIN_ACCESS.md for the administrator account onboarding flow.
+
+No production deployment was made from this archive. Validate dependencies, run the complete test suite and dependency audit, test the authenticated admin/OAuth flows, and deploy a preview before promoting to production.

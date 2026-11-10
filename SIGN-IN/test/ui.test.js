@@ -26,7 +26,7 @@ test('sign-in and consent layouts include compact responsive breakpoints', () =>
 
 
 test('the portal exposes English and Tamil only across public pages', async () => {
-  for (const page of ['index.html', 'account.html', 'developer.html', 'admin.html', '404.html', 'error.html']) {
+  for (const page of ['index.html', 'account.html', 'developer.html', '404.html', 'error.html']) {
     const source = await readFile(new URL('../public/' + page, import.meta.url), 'utf8');
     const languages = [...source.matchAll(/data-lang="([^"]+)"/g)].map(m => m[1]);
     assert.deepEqual(languages, ['en', 'ta'], page);
@@ -38,4 +38,13 @@ test('the portal exposes English and Tamil only across public pages', async () =
   assert.doesNotMatch(pageI18n, /\bhi\s*:/);
   assert.doesNotMatch(consentI18n, /\bhi\s*:/);
   assert.match(mainI18n, /lang = l === 'ta' \? 'ta' : 'en'/);
+});
+
+test('the identity portal has no admin dashboard assets or account navigation', async () => {
+  await assert.rejects(readFile(new URL('../public/admin.html', import.meta.url)));
+  await assert.rejects(readFile(new URL('../public/admin.js', import.meta.url)));
+  const account = await readFile(new URL('../public/account.html', import.meta.url), 'utf8');
+  const script = await readFile(new URL('../public/account.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(account, /href="\/admin"|adminLink/);
+  assert.doesNotMatch(script, /adminLink|isAdmin/);
 });
