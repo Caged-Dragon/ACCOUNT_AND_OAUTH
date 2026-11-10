@@ -64,7 +64,7 @@ Open **Vercel → `sigin-in-website` → Settings → Environment Variables**. C
 | `SUPABASE_URL` | `https://gbeurqibcfvquacasofq.supabase.co` |
 | `SUPABASE_ANON_KEY` | The CAGED_DRAGON publishable key (`sb_publishable_...`) or legacy anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | The CAGED_DRAGON server-only secret key (`sb_secret_...`) or legacy `service_role` key |
-| `PUBLIC_URL` | `https://caged-dragon-auth.vercel.app` — origin only, no path or query string |
+| `PUBLIC_URL` | `https://caged-dragon-auth.vercel.app` — origin only, no path or query string. This is the central sign-in portal host; the Admin dashboard is a separate Vercel app. |
 | `LOGIN_CODE_KEY` | One randomly generated 32-byte key represented by exactly 64 hexadecimal characters |
 | `EMAIL_ENABLED` | `0` until SMTP delivery and recovery/change-email flows are tested; then `1` |
 | `SMS_ENABLED` | `0` until Supabase Phone Auth and a real SMS provider are configured and tested; then `1` |
@@ -377,6 +377,7 @@ A passing health check is not proof that OAuth is enabled. A successful build is
 | `/healthz` is 200 but `/readyz` is 503 | Vercel Supabase URL/keys, Supabase availability, portal schema and service-role/secret access |
 | OAuth authorize endpoint returns feature-disabled / 404 | OAuth 2.1 Server has not been enabled in Supabase Authentication → OAuth Server |
 | Consent page says request invalid | It was opened without a Supabase-issued `authorization_id`; initiate login from a registered product |
+| Allow on OAuth consent returns `Blocked request.` | The portal checks POST origin. This build accepts a same-origin `Referer` only if the browser omitted `Origin`; mismatched or `null` origins remain blocked. Confirm `PUBLIC_URL=https://caged-dragon-auth.vercel.app` and redeploy the portal. |
 | Redirect URI rejected | Compare the complete requested callback with the OAuth client's registered URI, including scheme, host, port, path and trailing slash |
 | Callback arrives but token exchange fails | Client ID, public/confidential client type, original PKCE verifier, exact redirect URI, and single-use code expiry |
 | ID token validation fails | Use the Supabase issuer/JWKS, exact client ID audience, matching nonce, allowed algorithm, `kid` and expiry |

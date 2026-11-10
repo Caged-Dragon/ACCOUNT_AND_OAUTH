@@ -163,8 +163,18 @@ test('OAuth consent displays the product request, records an approved grant, and
     redirect_uri: 'https://demo.example.test/auth/callback', client, scope: 'openid email profile', state: 'state-demo' });
   const page = await c.get('/oauth/consent?authorization_id=oauth-auth-1&lang=en');
   assert.equal(page.status, 200); assert.match(page.text, /Demo OAuth Product/); assert.match(page.text, /See your email address/);
-  const decision = await c.post('/oauth/decision', { authorization_id: 'oauth-auth-1', decision: 'approve' });
-  assert.equal(decision.status, 303); assert.match(decision.res.headers.get('location'), /^https:\/\/demo\.example\.test\/auth\/callback\?code=mock-authorization-code&state=state-demo$/);
+  // A hostile Origin remains blocked even when a forged same-origin Referer is supplied.
+  const blocked = await fetch(base + '/oauth/decision', { method: 'POST', redirect: 'manual',
+    headers: { Cookie: c.cookie(), Origin: 'https://attacker.example', Referer: base + '/oauth/consent?authorization_id=oauth-auth-1', 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ authorization_id: 'oauth-auth-1', decision: 'approve' }) });
+  assert.equal(blocked.status, 403);
+  assert.deepEqual(await blocked.json(), { error: 'Blocked request.' });
+  // Some top-level form submissions omit Origin. Permit only an exact same-origin Referer fallback.
+  const decision = await fetch(base + '/oauth/decision', { method: 'POST', redirect: 'manual',
+    headers: { Cookie: c.cookie(), Referer: base + '/oauth/consent?authorization_id=oauth-auth-1', 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ authorization_id: 'oauth-auth-1', decision: 'approve' }) });
+  c.store(decision);
+  assert.equal(decision.status, 303); assert.match(decision.headers.get('location'), /^https:\/\/demo\.example\.test\/auth\/callback\?code=mock-authorization-code&state=state-demo$/);
   assert.equal(mock.st.oauthGrants.length, 1); assert.equal(mock.st.login_app_grants.length, 1);
   assert.ok(mock.st.login_events.some(e => e.method === 'oauth' && e.client_app_id === 'oauth-app-row'));
 });

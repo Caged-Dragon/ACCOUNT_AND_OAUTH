@@ -38,7 +38,7 @@ cp .env.example .env
 
 Fill `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `PUBLIC_URL`, and a new random `LOGIN_CODE_KEY`. The `.env.example` contains a key-generation command.
 
-For a local run, use `PUBLIC_URL=http://localhost:3000`. For a live deployment, set `PUBLIC_URL` to the HTTPS origin provided by Vercel or another host. **You do not need to own a custom domain** to start; the host-provided URL is sufficient. Add that exact URL as the Supabase Site URL and add its auth callback/redirect URLs in Supabase URL Configuration.
+For local development, use `PUBLIC_URL=http://localhost:3000`. The production central sign-in portal is `https://caged-dragon-auth.vercel.app`; set that exact origin as `PUBLIC_URL` in the portal Vercel project. The separate Admin dashboard is hosted at `https://caged-dragon-admin.vercel.app` and has its own project and callback. **You do not need to own a custom domain** to start; the host-provided URL is sufficient. Add that exact URL as the Supabase Site URL and add its auth callback/redirect URLs in Supabase URL Configuration.
 
 Start locally:
 
