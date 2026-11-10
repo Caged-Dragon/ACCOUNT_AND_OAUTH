@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Your account – Caged Dragon</title>
+<link rel="icon" href="/favicon.ico?v=3" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="plain"><main class="card wide" data-role="user">
+  <header class="head"><img class="mark" src="/product-128.png" alt="Caged Dragon Sign-In" width="52" height="52"><span class="who"><span class="brandname">Sign-In</span><small class="by" data-t>by Caged Dragon</small></span>
+    <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ta">தமிழ்</button><button type="button" data-lang="hi">हिन्दी</button></span></header>
+  <h1 data-t>Your account</h1>
+  <p class="sub"><span data-t>Signed in as</span> <b id="who">…</b> <span id="roles"></span> <a href="/developer" id="devLink" hidden data-t>Developer dashboard</a> <a href="/admin" id="adminLink" hidden data-t>Admin</a></p>
+  <p id="cont" hidden><a class="go linkbtn" id="contLink" data-t>Continue where you left off</a></p>
+
+  <h2 data-t>Two-step verification</h2>
+  <div id="mfaOff" hidden>
+    <p class="fine" data-t>Ask for a code from an authenticator app each time you sign in.</p>
+    <button class="go" id="mfaStart" type="button" data-t>Turn on</button>
+    <div id="mfaSetup" hidden>
+      <p class="fine" data-t>Scan this with Google Authenticator, Authy or similar, then enter the 6-digit code.</p>
+      <img id="qr" alt="QR" width="180" height="180"><p class="fine"><span data-t>Or type this key:</span> <code id="secret"></code></p>
+      <form id="mfaConfirm" novalidate><label><span data-t>6-digit code</span><input id="mfaCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label><button class="go" type="submit" data-t>Confirm</button></form>
+    </div>
+  </div>
+  <div id="mfaOn" hidden>
+    <p data-t>Two-step verification is on.</p>
+    <form id="mfaOffForm" novalidate><label><span data-t>Enter a current 6-digit code to turn it off</span><input id="offCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label><button class="cd" type="submit" data-t>Turn off</button></form>
+  </div>
+
+  <h2 data-t>Passkeys</h2>
+  <p class="fine" data-t>Use your fingerprint, face or screen lock instead of a password.</p>
+  <div id="passkeys"></div>
+  <button class="go" id="pkAdd" type="button" hidden data-t>Add a passkey</button>
+
+  <div id="pwSection" hidden>
+    <h2 data-t>Change password</h2>
+    <form id="pwForm" novalidate>
+      <label><span data-t>Current password</span><input id="cur" type="password" autocomplete="current-password"></label>
+      <label><span data-t>New password</span><input id="next" type="password" autocomplete="new-password" minlength="8" data-tp placeholder="At least 8 characters"></label>
+      <button class="go" type="submit" data-t>Change password</button>
+    </form>
+  </div>
+
+  <div id="emailSection" hidden>
+    <h2 data-t>Change email</h2>
+    <form id="emailForm" novalidate>
+      <label><span data-t>New email</span><input id="newEmail" type="email" autocomplete="email"></label>
+      <label><span data-t>Current password</span><input id="emailPw" type="password" autocomplete="current-password"></label>
+      <button class="go" type="submit" data-t>Change email</button>
+    </form>
+  </div>
+
+  <h2 data-t>Products you use</h2><div id="products"></div>
+  <h2 data-t>Recent sign-ins</h2><div id="events"></div>
+
+  <h2 data-t>Security</h2>
+  <button class="cd" id="out" type="button" data-t>Sign out everywhere</button>
+  <div id="delSection" hidden>
+    <h2 data-t>Delete account</h2>
+    <p class="fine" data-t>This permanently deletes your account in every Caged Dragon product. This can’t be undone.</p>
+    <form id="delForm" novalidate>
+      <label><span data-t>Type DELETE to confirm</span><input id="delConfirm" autocomplete="off"></label>
+      <label id="delPwRow"><span data-t>Current password</span><input id="delPw" type="password" autocomplete="current-password"></label>
+      <label id="delCodeRow" hidden><span data-t>6-digit code</span><input id="delCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>
+      <button class="cd danger" type="submit" data-t>Delete my account</button>
+    </form>
+  </div>
+  <p class="row"><a href="/" data-t>Back to sign in</a></p>
+  <p id="msg" role="status" aria-live="polite"></p>
+  <footer class="co"><img src="/company-128.png" alt="Caged Dragon" width="56" height="56"><span><b>Caged Dragon Studios</b><br>Unleash Possibilities</span></footer>
+</main>
+<script src="/i18n.js"></script><script src="/i18n-pages.js"></script><script src="/vendor/webauthn.js"></script><script src="/account.js" defer></script></body></html>

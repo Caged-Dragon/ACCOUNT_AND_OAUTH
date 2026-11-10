@@ -1,8 +1,0 @@
-node_modules
-.next
-.env*.local
-.env
-.vercel
-next-env.d.ts
-supabase/.temp
-supabase/.branches

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Admin – Caged Dragon Sign-In</title>
+<link rel="icon" href="/favicon.ico?v=3" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="plain"><main class="card wide admin-wide" data-role="developer">
+  <header class="head"><img class="mark" src="/product-128.png" alt="Caged Dragon Sign-In" width="52" height="52"><span class="who"><span class="brandname">Sign-In</span><small class="by">admin</small></span><a class="toplink" href="/account">Account</a></header>
+  <h1>Admin</h1>
+  <div class="stats" id="stats"></div>
+
+  <h2>Your products</h2>
+  <p class="fine">These get a full Caged Dragon session. Register only products you own.</p>
+  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th>Name</th><th>ID</th><th>Address</th><th>On</th><th></th></tr></thead><tbody id="products"></tbody></table></div>
+  <form id="addProduct" novalidate>
+    <h2>Add a product</h2>
+    <label><span>ID (lowercase, dashes)</span><input id="slug" placeholder="arcadevault"></label>
+    <label><span>Name</span><input id="pname" placeholder="ArcadeVault"></label>
+    <label><span>Address</span><input id="origin" placeholder="https://arcadevault.example.com"></label>
+    <button class="go" type="submit">Save product</button>
+  </form>
+
+  <h2>Developer apps</h2>
+  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th>Name</th><th>Owner</th><th>Client ID</th><th></th></tr></thead><tbody id="devApps"></tbody></table></div>
+
+  <h2>Recent sign-ins</h2>
+  <div class="scroll" tabindex="0" role="region" aria-label="Table"><table><thead><tr><th>When</th><th>Method</th><th>Type</th><th>Product</th></tr></thead><tbody id="events"></tbody></table></div>
+  <p id="msg" role="status" aria-live="polite"></p>
+</main><script src="/admin.js" defer></script></body></html>

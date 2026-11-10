@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign-In – Caged Dragon</title>
+<meta name="description" content="One Caged Dragon account for every Caged Dragon product.">
+<meta name="theme-color" content="#E3B010">
+<link rel="icon" href="/favicon.ico?v=3" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<aside class="brand" id="brand"><img src="/logo.webp" alt="Caged Dragon – Unleash Possibilities" width="1000" height="1000"></aside>
+
+<main>
+<div class="card" id="card" data-role="user">
+  <header class="head"><img class="mark" src="/product-128.png" alt="Caged Dragon Sign-In" width="52" height="52"><span class="who"><span class="brandname">Sign-In</span><small class="by" data-t>by Caged Dragon</small></span>
+    <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ta">தமிழ்</button><button type="button" data-lang="hi">हिन्दी</button></span>
+  </header>
+
+  <div class="roles" id="roles" role="tablist" aria-label="Account type">
+    <button type="button" role="tab" id="roleUser" aria-selected="true" data-t>User</button>
+    <button type="button" role="tab" id="roleDev" aria-selected="false" data-t>Developer</button>
+  </div>
+
+  <h1 id="title">Sign in</h1>
+  <p class="sub" id="sub"></p>
+  <div id="target" class="target" hidden></div>
+
+  <div id="signin">
+    <button class="cd" id="cdBtn" type="button"><img src="/company-128.png" alt="" width="26" height="26"><span id="cdLabel">Continue with Caged-Dragon</span></button>
+    <div class="row" id="after" hidden><a href="/account" data-t>Manage account</a><span id="devLinkWrap" hidden> · <a href="/developer" data-t>Developer dashboard</a></span></div>
+    <button class="cd" id="pkBtn" type="button" hidden><span aria-hidden="true">🔑</span> <span data-t>Sign in with a passkey</span></button>
+    <div class="or" data-t>or sign in with</div>
+    <div class="tabs" id="tabs" role="tablist">
+      <button role="tab" id="tabEmail" aria-selected="true" type="button" data-t>Email</button>
+      <button role="tab" id="tabPhone" aria-selected="false" type="button" data-t>Mobile number</button>
+    </div>
+
+    <form id="paneEmail" novalidate>
+      <label><span data-t>Email</span><input id="email" name="email" type="email" autocomplete="username" placeholder="you@example.com"></label>
+      <label><span data-t>Password</span><span class="pw"><input id="password" name="password" type="password" autocomplete="current-password" minlength="8" data-tp placeholder="At least 8 characters"><button type="button" class="pwbtn" id="pwToggle" aria-pressed="false">Show</button></span></label>
+      <div class="forgotrow"><button type="button" class="link" id="forgot" data-t>Forgot password?</button></div>
+      <button class="go" id="emailGo" type="submit">Sign in</button>
+      <div class="row"><span id="emailToggleText"></span> <button class="link" id="emailToggle" type="button"></button></div>
+    </form>
+
+    <div id="panePhone" hidden>
+      <form id="phoneStep1" novalidate>
+        <label><span data-t>Mobile number</span><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+91 98765 43210"></label>
+        <button class="go" id="phoneSend" type="submit" data-t>Send code</button>
+      </form>
+      <form id="phoneStep2" hidden novalidate>
+        <label><span data-t>6-digit code</span><input id="otp" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
+        <button class="go" id="phoneVerify" type="submit" data-t>Verify and sign in</button>
+        <div class="row"><button class="link" id="resend" type="button" disabled>Resend code</button> · <button class="link" id="phoneBack" type="button" data-t>Use a different number</button></div>
+      </form>
+    </div>
+
+    <div class="devprompt" id="devPrompt" hidden>
+      <p><b data-t>This account isn’t a developer account yet.</b> <span data-t>Add a developer profile to publish and grow your products.</span></p>
+      <button class="go" id="devEnable" type="button" data-t>Create developer profile</button>
+    </div>
+    <div class="devprompt" id="mfaNeeded" hidden>
+      <p data-t>This product needs two-step verification. Turn it on in your account, then come back.</p>
+      <a class="go linkbtn" id="mfaSetupLink" data-t>Set up two-step verification</a>
+    </div>
+  </div>
+
+  <form id="resetBox" hidden novalidate>
+    <label><span data-t>New password</span><span class="pw"><input id="newPw" name="new-password" type="password" autocomplete="new-password" minlength="8" data-tp placeholder="At least 8 characters"><button type="button" class="pwbtn" id="newPwToggle" aria-pressed="false">Show</button></span></label>
+    <button class="go" type="submit" data-t>Set new password</button>
+  </form>
+
+  <form id="mfaForm" hidden novalidate>
+    <label><span data-t>6-digit code</span><input id="mfaCode" name="mfa" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
+    <button class="go" type="submit" data-t>Verify</button>
+  </form>
+
+  <div id="captcha" hidden></div>
+  <p id="msg" role="status" aria-live="polite"></p>
+  <p class="legal" id="legal" hidden><span data-t>By continuing you agree to our</span> <a id="termsLink" target="_blank" rel="noopener" data-t>Terms</a> <span data-t>and</span> <a id="privacyLink" target="_blank" rel="noopener" data-t>Privacy Policy</a><span data-t>.</span></p>
+  <footer class="co"><img src="/company-128.png" alt="Caged Dragon" width="56" height="56"><span><b>Caged Dragon Studios</b><br>Unleash Possibilities</span></footer>
+</div>
+</main>
+<script src="/i18n.js"></script>
+<script src="/i18n-pages.js"></script>
+<script src="/vendor/webauthn.js"></script>
+<script src="/app.js" defer></script>
+</body>
+</html>

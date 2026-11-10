@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Developer dashboard – Caged Dragon</title>
+<link rel="icon" href="/favicon.ico?v=3" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="plain"><main class="card wide" data-role="developer">
+  <header class="head"><img class="mark" src="/product-128.png" alt="Caged Dragon Sign-In" width="52" height="52"><span class="who"><span class="brandname">Sign-In</span><small class="by" data-t>by Caged Dragon</small></span>
+    <span class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ta">தமிழ்</button><button type="button" data-lang="hi">हिन्दी</button></span></header>
+  <h1 data-t>Developer dashboard</h1>
+  <p class="sub"><span data-t>Register your products so people can sign in with Caged Dragon. Each product is a standard OAuth app: it only sees what the person allows.</span> <a href="/account" data-t>Account</a></p>
+  <section id="apps" aria-live="polite"></section>
+  <h2 data-t>Register a product</h2>
+  <form id="newApp" novalidate>
+    <label><span data-t>Product name</span><input id="name" maxlength="100"></label>
+    <label><span data-t>Website (optional)</span><input id="website" placeholder="https://mygame.example.com"></label>
+    <label><span data-t>Redirect addresses, one per line (up to 5)</span><textarea id="uris" rows="3" placeholder="https://mygame.example.com/callback"></textarea></label>
+    <label><span data-t>Type</span><select id="kind"><option value="confidential" data-t>Has a server (keeps a secret)</option><option value="public" data-t>Browser or mobile only (no secret, uses PKCE)</option></select></label>
+    <button class="go" type="submit" data-t>Register product</button>
+  </form>
+  <div class="devprompt" id="created" hidden>
+    <p><b data-t>Save these now.</b> <span data-t>The secret is shown only once.</span></p>
+    <p><span data-t>Client ID</span><br><code id="cid"></code></p><p id="secretRow"><span data-t>Client secret</span><br><code id="csecret"></code></p>
+    <button class="link" id="copyBoth" type="button" data-t>Copy</button>
+  </div>
+  <details><summary data-t>How to connect your product</summary><pre id="how">…</pre></details>
+  <p id="msg" role="status" aria-live="polite"></p>
+  <footer class="co"><img src="/company-128.png" alt="Caged Dragon" width="56" height="56"><span><b>Caged Dragon Studios</b><br>Unleash Possibilities</span></footer>
+</main>
+<script src="/i18n.js"></script><script src="/i18n-pages.js"></script><script src="/dev.js" defer></script></body></html>
